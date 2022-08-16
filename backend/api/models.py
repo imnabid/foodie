@@ -29,17 +29,3 @@ class Order(models.Model):
 
     def __str__(self):
         return self.ordered_food.item_name
-
-class Blog(models.Model):
-    title = models.CharField(max_length=200)
-    text = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    
-
-class Viewer(models.Model):
-    blog = models.ForeignKey(Blog, related_name='viewers', on_delete=models.CASCADE)
-    viewer_name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.viewer_name

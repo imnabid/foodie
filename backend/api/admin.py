@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api.models import Blog, Food, FoodCategory, Viewer, Order
+from api.models import Food, FoodCategory, Order
 
 admin.site.register(FoodCategory)
 

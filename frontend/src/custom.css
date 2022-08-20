@@ -1,0 +1,14 @@
+.navbar{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height:50px;
+    border: 1px solid black;
+}
+.link {
+    text-decoration: none;
+    
+}
+.h{
+    border: 1px solid black;
+}

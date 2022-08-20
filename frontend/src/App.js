@@ -1,13 +1,27 @@
 import "./App.css";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
+import "./custom.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./components/Home";
+import Login from "./components/Login";
+import Navbar from "./components/Navbar";
+import { createContext, useState } from "react";
+
+export const customContext = createContext("");
 
 function App() {
+  const [username, setUsername] = useState(localStorage.getItem('username')); //initially null
+  const info = {username, setUsername};
   return (
-
-    <div className="App">
-      Have fun coding!
+    <div>
+      <BrowserRouter>
+        <customContext.Provider value={info}>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="login" element={<Login />} />
+          </Routes>
+        </customContext.Provider>
+      </BrowserRouter>
     </div>
   );
 }

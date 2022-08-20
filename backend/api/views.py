@@ -1,14 +1,61 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import authenticate, get_user_model
+from django.conf import settings
 from .models import FoodCategory, Food
-from .serializers import FoodSerializer, FoodCategorySerializer
+from .serializers import (FoodSerializer, FoodCategorySerializer, OTPVerificationSerializer, OrderSerializer, UserSerializer,
+OTPVerificationSerializer)
 from rest_framework import status
-from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication,TokenAuthentication
 from rest_framework.authtoken.models import Token
+from .permissions import IsPaymentSuccessful, IsStaffOrReadOnly
+from accounts.otp import send_email
+
+class UserRegistrationView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        serializer = UserSerializer(data=request.data)
+        if(serializer.is_valid(raise_exception=True)):
+            instance = serializer.save()
+            instance.is_active=False
+            send_email(instance.email, instance.otp)
+            return Response({'message':'A OTP has been sent to the provided email'})
+
+class OTPVerificationView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = OTPVerificationSerializer(data=request.data)
+        if(serializer.is_valid(raise_exception=True)):
+            instance = get_object_or_404(get_user_model(),email=serializer.validated_data.get('email'))
+            if instance.is_verified:
+                return Response({'status':'user already verified'})
+            if instance.otp == serializer.validated_data.get('otp'):
+                instance.is_active = True
+                instance.is_verified = True
+                instance.save()
+            else:
+                return Response({'status':"provided OTP didn't match"})
+            return Response({'status':'Account verified successfully'})
+
+
+class OrderHistoryListView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsPaymentSuccessful] #not implemented for now
+
+    def get(self, request, *args, **kwargs):
+        orders = request.user.order_set.all().order_by('-created')
+        if(orders):
+            serialiazer = OrderSerializer(orders, many=True)
+            return Response(serialiazer.data)
+        return Response({'status':'No Order History'})
+    
+    def post(self, request, *args, **kwargs):
+        serializer = OrderSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'status':'successful'})
 
 
 class LoginView(APIView):
@@ -24,12 +71,6 @@ class LoginView(APIView):
 
 
 
-class IsStaffOrReadOnly(BasePermission):
-    def has_permission(self, request, view):
-        return (
-            # request.method in SAFE_METHODS or
-            request.user.is_staff
-        )
 
 class FoodCategoriesList(generics.ListCreateAPIView):
     queryset = FoodCategory.objects.all()

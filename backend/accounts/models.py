@@ -1,20 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+from .otp import otp_generator
 
 
-class customUserManager(BaseUserManager):
-    
-    def create_user(self, email, password, **extra_fields):
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def create_user(self, username, email, password, **extra_fields):
         if not email:
-            raise ValueError('email must be added')
+            raise ValueError('email is required')
+        if not username:
+            raise ValueError("username is required")
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, password, **extra_fields):
+    def create_superuser(self, username, email, password, **extra_fields):
         extra_fields.setdefault('is_staff',True)
         extra_fields.setdefault('is_superuser',True)
         extra_fields.setdefault('is_active',True)
@@ -24,24 +30,33 @@ class customUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(email=email, password=password, **extra_fields)
+        return self.create_user(username=username, email=email, password=password, **extra_fields)
 
 
-class customUser(AbstractUser):
-    username = None
-    # first_name = models.CharField(verbose_name=_('first name'), max_length=100, blank=True )
-    # last_name = models.CharField(verbose_name=_('last name'), max_length=100, blank=True )
-    email = models.EmailField(verbose_name=_('email addresss'), unique=True)
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+class User(AbstractUser):
+    email = models.EmailField(
+        _('email address'),
+        max_length=150,
+        unique=True,
+        error_messages={
+            "unique": _("A user with that email already exists."),
+        },
+        )
+    is_verified = models.BooleanField(_('verified'), default=False)
+    otp = models.CharField(_('otp code'), blank=True, null=True,max_length=10)
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
 
-    objects = customUserManager()
+    objects = UserManager()
 
-    def __str__(self):
-        return self.email
+# otp auto save
+@receiver(post_save,  sender=User)
+def save_otp(sender, instance, created, **kwargs):
+    if created:
+        instance.otp = otp_generator()
+        instance.save()
+
 
 
 

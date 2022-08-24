@@ -42,6 +42,12 @@ class User(AbstractUser):
             "unique": _("A user with that email already exists."),
         },
         )
+    address = models.CharField(
+        _('address'),
+        max_length=150,
+        blank=True,
+        null=True
+        )
     is_verified = models.BooleanField(_('verified'), default=False)
     otp = models.CharField(_('otp code'), blank=True, null=True,max_length=10)
 

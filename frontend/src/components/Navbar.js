@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { Box, Grid, Typography } from "@mui/material";
-import {customContext} from '../App';
 import { useLocation } from 'react-router-dom';
+import { UserContext } from "../GlobalContext";
 
 function Navbar() {
-  const {username, setUsername} = useContext(customContext)
+  const {username, setUsername} = useContext(UserContext)
   let location = useLocation();
 
   const handleLogout = ()=>{

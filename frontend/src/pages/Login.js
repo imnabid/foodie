@@ -1,11 +1,11 @@
 import { Box, Button, Grid, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import { useContext } from "react";
-import { customContext } from "../App";
 import {useNavigate} from 'react-router-dom'
+import { UserContext } from "../GlobalContext";
 
 function Login() {
-  const {setUsername} = useContext(customContext);
+  const {setUsername} = useContext(UserContext);
   let navigate = useNavigate();
   console.log(localStorage.getItem('name'))
 
@@ -13,10 +13,18 @@ function Login() {
     e.preventDefault();
     const username = e.target.username.value;
     const password = e.target.password.value;
-    axios.post('http://127.0.0.1:8000/api/token/',{username,password})
+    axios.post('http://127.0.0.1:8000/api/login/',{username,password})
     .then(response=>{
       console.log(response);
+      if(response.data.token){
+      localStorage.setItem('token',response.data.token)
+      localStorage.setItem('username',response.data.username)
+      setUsername(response.data.username)
+      navigate('/')
+      }
+
     })
+    .catch(err=>console.log(err.response))
   }
 
 

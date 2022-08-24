@@ -17,13 +17,14 @@ from accounts.otp import send_email
 class UserRegistrationView(APIView):
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         serializer = UserSerializer(data=request.data)
-        if(serializer.is_valid(raise_exception=True)):
+        if serializer.is_valid(raise_exception=True):
             instance = serializer.save()
             instance.is_active=False
             send_email(instance.email, instance.otp)
-            return Response({'message':'A OTP has been sent to the provided email'})
-
+            return Response({'message':'A OTP has been sent to the provided email'},status=status.HTTP_202_ACCEPTED)
+ 
 class OTPVerificationView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = OTPVerificationSerializer(data=request.data)
@@ -65,9 +66,10 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         if not user:
             return Response({'error': 'Invalid Credentials'},status=status.HTTP_404_NOT_FOUND)
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key, 'username':user.get_username()},status=status.HTTP_200_OK)
-
+        if user.is_verified==True:
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key, 'username':user.get_username()},status=status.HTTP_200_OK)
+        return Response({'error':'the account is not verified'},status=status.HTTP_403_FORBIDDEN)
 
 
 

@@ -2,25 +2,23 @@ import "./App.css";
 import "./custom.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./components/Home";
-import Login from "./components/Login";
 import Navbar from "./components/Navbar";
-import { createContext, useState } from "react";
-
-export const customContext = createContext("");
+import { UserContextProvider } from "./GlobalContext";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 function App() {
-  const [username, setUsername] = useState(localStorage.getItem('username')); //initially null
-  const info = {username, setUsername};
   return (
     <div>
       <BrowserRouter>
-        <customContext.Provider value={info}>
+        <UserContextProvider>
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
           </Routes>
-        </customContext.Provider>
+        </UserContextProvider>
       </BrowserRouter>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "@mui/material/Button";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import ItemDetail from "./ItemDetail";
 
 function Home() {
@@ -15,6 +15,7 @@ function Home() {
       <Button onClick={handleOpen} variant="outlined" color="secondary">
         click
       </Button>
+      
       <ItemDetail open={open} handleClose={handleClose} />
     </Box>
   );

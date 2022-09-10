@@ -4,7 +4,7 @@ export const UserContext = createContext();
 
 export const UserContextProvider = ({children})=> {
 
-  const [username, setUsername] = useState(localStorage.getItem('username')); //initially null
+  const [username, setUsername] = useState(); //initially null
   const info = {username, setUsername};
 
   return (

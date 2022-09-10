@@ -1,35 +1,38 @@
 import { Box, Button, Grid, TextField, Typography } from "@mui/material";
-import axios from "axios";
-import { useContext } from "react";
-import {useNavigate} from 'react-router-dom'
-import { UserContext } from "../GlobalContext";
+import { gapi } from "gapi-script";
+import { useEffect } from "react";
+import GoogleLogin from "react-google-login";
+import {handleGoogleLogin, handleCustomLogin} from "../axios/handleLogin";
 
 function Login() {
-  const {setUsername} = useContext(UserContext);
-  let navigate = useNavigate();
-  console.log(localStorage.getItem('name'))
-
-  const handleLogin = (e)=>{
+  const handleLogin = (e) => {
     e.preventDefault();
     const username = e.target.username.value;
     const password = e.target.password.value;
-    axios.post('http://127.0.0.1:8000/api/login/',{username,password})
-    .then(response=>{
-      console.log(response);
-      if(response.data.token){
-      localStorage.setItem('token',response.data.token)
-      localStorage.setItem('username',response.data.username)
-      setUsername(response.data.username)
-      navigate('/')
-      }
+    handleCustomLogin(username,password)
+  };
 
-    })
-    .catch(err=>console.log(err.response))
-  }
+  useEffect(() => {
+    // for google auth to work
+    function start() {
+      gapi.client.init({
+        clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+        scope: "email",
+      });
+    }
+    gapi.load("client:auth2", start);
+  }, []);
 
+  const googleFail = (response) => {
+    console.log(response);
+  };
+
+  const googleSuccess = (response) => {
+    handleGoogleLogin(response.accessToken)
+  };
 
   return (
-    <Grid container sx={{height:500}} >
+    <Grid container sx={{ height: 500 }}>
       <Grid
         item
         border={1}
@@ -41,7 +44,7 @@ function Login() {
         //   backgroundSize: "cover",
         // }}
       />
-      <Grid item  xs={12} border={1} md={5} sx={{ px: "5vw" }}>
+      <Grid item xs={12} border={1} md={5} sx={{ px: "5vw" }}>
         <Box display="flex" justifyContent="center" marginTop={4}>
           <Typography component="h1" variant="h5">
             Login
@@ -76,10 +79,20 @@ function Login() {
             type="submit"
             color="primary"
             variant="contained"
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, mb: 2 }}
           >
             Login
           </Button>
+          <Typography textAlign="center" sx={{ color: "gray" }}>
+            OR
+          </Typography>
+
+          <GoogleLogin
+            buttonText="Login with Google"
+            onSuccess={googleSuccess}
+            onFailure={googleFail}
+            cookiePolicy={"single_host_origin"}
+          />
         </Box>
       </Grid>
     </Grid>

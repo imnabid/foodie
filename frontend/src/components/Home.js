@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import Button from "@mui/material/Button";
-import { Box, Typography } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import ItemDetail from "./ItemDetail";
+import { UserContext } from "../GlobalContext";
 
 function Home() {
   const [open, setOpen] = React.useState(false);

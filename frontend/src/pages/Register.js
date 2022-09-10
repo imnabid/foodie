@@ -13,21 +13,15 @@ import image from "../images/register.jpg";
 import SendIcon from "@mui/icons-material/Send";
 import SignInGoogle from "../components/SignInGoogle";
 import { Link } from "react-router-dom";
-import { handleRegister } from "./handleRequests";
-import { ErrorSharp } from "@mui/icons-material";
+import { handleRegister } from "../axios/handleRequests";
 
 function Registerr() {
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({
-    u: { state: false,msg:'' },  //username error state
-    e:{state:false,msg:''}         //email error state
-  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
     const t = e.currentTarget;
-    console.log(t.username);
     const userInfo = {
       first_name: t.firstName.value,
       last_name: t.lastName.value,
@@ -37,8 +31,7 @@ function Registerr() {
       address: t.address.value,
     };
     setTimeout(() => setLoading(false), 2000);
-    let res = handleRegister(userInfo);
-    console.log(res.code)
+    handleRegister(userInfo);
   };
 
   return (
@@ -101,7 +94,6 @@ function Registerr() {
             </Grid>
             <Grid item xs={6}>
               <TextField
-                error={errors.u.state}
                 size="small"
                 required
                 fullWidth
@@ -109,7 +101,6 @@ function Registerr() {
                 label="Username"
                 name="username"
                 autoComplete="family-name"
-                helperText={errors.u.state && errors.u.msg}
               />
             </Grid>
             <Grid item xs={6}>

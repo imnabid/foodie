@@ -9,7 +9,7 @@ from .otp import otp_generator
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, username, email, password, **extra_fields):
+    def create_user(self, username, email, password=None, **extra_fields):
         if not email:
             raise ValueError('email is required')
         if not username:
@@ -20,7 +20,7 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, username, email, password, **extra_fields):
+    def create_superuser(self, username, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff',True)
         extra_fields.setdefault('is_superuser',True)
         extra_fields.setdefault('is_active',True)
@@ -48,7 +48,6 @@ class User(AbstractUser):
         blank=True,
         null=True
         )
-    is_verified = models.BooleanField(_('verified'), default=False)
     otp = models.CharField(_('otp code'), blank=True, null=True,max_length=10)
 
     USERNAME_FIELD = "username"

@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from django.conf import settings
+
+from accounts.serializers import UserSerializer
 from .models import FoodCategory, Food
 from .serializers import (FoodSerializer, FoodCategorySerializer, OrderSerializer)
 from rest_framework import status
@@ -10,6 +12,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication,TokenAuthentication
 from rest_framework.authtoken.models import Token
 from .permissions import IsPaymentSuccessful, IsStaffOrReadOnly
+from oauth2_provider.contrib.rest_framework import OAuth2Authentication
+
+
+class LoggedInUserInfo(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class OrderHistoryListView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -48,7 +60,7 @@ class FoodCategoriesList(generics.ListCreateAPIView):
     queryset = FoodCategory.objects.all()
     serializer_class = FoodCategorySerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsStaffOrReadOnly]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

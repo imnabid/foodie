@@ -1,15 +1,53 @@
-import { Box, Button, Grid, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  colors,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { gapi } from "gapi-script";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import GoogleLogin from "react-google-login";
-import {handleGoogleLogin, handleCustomLogin} from "../axios/handleLogin";
+import { Link, useNavigate } from "react-router-dom";
+import { axiosInstanceGeneral } from "../axios/axios";
+import Password from "../components/Password";
+import { UserContext } from "../GlobalContext";
+import image from "../images/login.jpg";
 
 function Login() {
+  const navigate = useNavigate();
+  const {setAuthenticated, setShowSnackBar} = useContext(UserContext)
+  
   const handleLogin = (e) => {
     e.preventDefault();
     const username = e.target.username.value;
     const password = e.target.password.value;
-    handleCustomLogin(username,password)
+    axiosInstanceGeneral
+    .post("auth/token/", {
+      grant_type: "password",
+      username: username,
+      password: password,
+      client_id: process.env.REACT_APP_CLIENT_ID,
+      client_secret: process.env.REACT_APP_CLIENT_SECRET,
+    })
+    .then((res) => {
+      if ((res.status = 200)) {
+        const data = res.data;
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+        setShowSnackBar((prev)=>{
+          return {...prev,show:true}
+        })
+        setAuthenticated(true);
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      setShowSnackBar((prev)=>{
+        return {...prev,show:true, msg:err.response.data.error_description,type:'error'}
+      })
+    });
   };
 
   useEffect(() => {
@@ -28,71 +66,98 @@ function Login() {
   };
 
   const googleSuccess = (response) => {
-    handleGoogleLogin(response.accessToken)
+    axiosInstanceGeneral
+    .post("auth/convert-token", {
+      token: response.accessToken,
+      backend: "google-oauth2",
+      grant_type: "convert_token",
+      client_id: process.env.REACT_APP_CLIENT_ID,
+      client_secret: process.env.REACT_APP_CLIENT_SECRET,
+    })
+    .then((res) => {
+      if ((res.status = 200)) {
+        const data = res.data;
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+        setAuthenticated(true);
+        setShowSnackBar((prev)=>{
+          return {...prev,show:true}
+        })
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+    console.log('error occured',err)
+    setShowSnackBar((prev)=>{
+      return {...prev,show:true, msg:'Google Login Failed!',type:'error'}
+    })
+
+  });
   };
 
   return (
-    <Grid container sx={{ height: 500 }}>
+    <Grid container sx={{pt:4}} >
       <Grid
         item
-        border={1}
         xs={false}
         md={7}
-        // sx={{
-        //   backgroundImage: "url('https://i.pinimg.com/736x/f7/eb/d8/f7ebd86ff10d7d738d975f227a591600.jpg')",
-        //   backgroundRepeat: "no-repeat",
-        //   backgroundSize: "cover",
-        // }}
+        sx={{
+          backgroundImage: `url(${image})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
       />
-      <Grid item xs={12} border={1} md={5} sx={{ px: "5vw" }}>
+      <Grid item xs={12} md={5} sx={{ px: "5vw" }}>
         <Box display="flex" justifyContent="center" marginTop={4}>
-          <Typography component="h1" variant="h5">
-            Login
+          <Typography
+            component="h1"
+            variant="h5"
+            sx={{ color: colors.grey[700] }}
+          >
+            LOGIN
           </Typography>
         </Box>
         <Box
           component="form"
-          marginTop={3}
           noValidate
           display="flex"
           flexDirection="column"
           onSubmit={handleLogin}
+          sx={{ boxShadow: 4, p: 3, mt: 3 }}
         >
           <TextField
             margin="normal"
+            size="small"
             variant="outlined"
             required
             id="username"
             name="username"
             label="username"
+            sx={{ mb: 3 }}
           />
-          <TextField
-            margin="normal"
-            variant="outlined"
-            required
-            id="password"
-            name="password"
-            label="password"
-            sx={{}}
-          />
-          <Button
-            type="submit"
-            color="primary"
-            variant="contained"
-            sx={{ mt: 2, mb: 2 }}
-          >
+          <Password size="small" label="Password" />
+          <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }}>
             Login
           </Button>
-          <Typography textAlign="center" sx={{ color: "gray" }}>
+          <Typography textAlign="center" sx={{ color: "gray", mb: 2 }}>
             OR
           </Typography>
 
           <GoogleLogin
-            buttonText="Login with Google"
             onSuccess={googleSuccess}
             onFailure={googleFail}
+            theme="dark"
             cookiePolicy={"single_host_origin"}
           />
+          <Typography
+            component={Link}
+            to="../register"
+            color="primary"
+            variant="p"
+            sx={{ textDecoration: "underline",display:'flex',justifyContent:'flex-end' }}
+          >
+            Don't have an account? Sign Up
+          </Typography>
         </Box>
       </Grid>
     </Grid>

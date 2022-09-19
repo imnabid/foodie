@@ -7,7 +7,7 @@ from . import views
 urlpatterns = [
    path('categories/', views.FoodCategoriesList.as_view()),
    path('foods/',views.FoodList.as_view(), name='food-list'),
-   path('login/', views.LoginView.as_view(), name='login'),
+   path('user-info/', views.LoggedInUserInfo.as_view(), name='user_info'),
    path('orders/', views.OrderHistoryListView.as_view(),name='orders'),
 ]
 

@@ -1,9 +1,8 @@
 import axios from "axios";
-
 // this is for normal custom login
 
 const BASEURL = "http://127.0.0.1:8000/";
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
   baseURL: BASEURL,
   timeout: 5000,
   headers: {
@@ -12,7 +11,7 @@ const axiosInstance = axios.create({
   },
 });
 
-export const handleCustomLogin = (username, password) => {
+export const handleCustomLogin = (username, password ) => {
   axiosInstance
     .post("auth/token/", {
       grant_type: "password",
@@ -29,7 +28,7 @@ export const handleCustomLogin = (username, password) => {
         localStorage.setItem("refresh_token", data.refresh_token);
       }
     })
-    .catch((err) => console.log("error occurred"));
+    .catch((err) => {console.log(err)});
 };
 
 export const handleGoogleLogin = (accessToken) => {

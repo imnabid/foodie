@@ -15,7 +15,6 @@ function Password({ label, variant, size, sx }) {
       sx ={sx}  
       label={label}
       fullWidth
-      autoFocus
       name='password'
       size={size}
       variant={variant}

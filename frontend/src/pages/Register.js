@@ -4,6 +4,7 @@ import {
   CircularProgress,
   colors,
   Grid,
+  Paper,
   TextField,
   Typography,
 } from "@mui/material";
@@ -11,7 +12,6 @@ import React, { useState } from "react";
 import Password from "../components/Password";
 import image from "../images/register.jpg";
 import SendIcon from "@mui/icons-material/Send";
-import SignInGoogle from "../components/SignInGoogle";
 import { Link } from "react-router-dom";
 import { handleRegister } from "../axios/handleRequests";
 
@@ -35,12 +35,11 @@ function Registerr() {
   };
 
   return (
-    <Grid container sx={{ display: "flex", justifyContent: "center" }}>
+    <Grid container sx={{ display: "flex", justifyContent: "center" ,pt:4}}>
       <Grid
         item
         xs={false}
-        md={6}
-        height="90vh"
+        md={7}
         sx={{
           backgroundImage: `url(${image})`,
           backgroundPosition: "center",
@@ -51,13 +50,13 @@ function Registerr() {
         item
         xs={12}
         sm={10}
-        md={6}
+        md={5}
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          px: { md: 15, xs: 2 },
+          px: { md: 5, xs: 2 },
         }}
       >
         <Typography
@@ -65,9 +64,14 @@ function Registerr() {
           sx={{ color: colors.grey[700] }}
           variant="h5"
         >
-          Sign up
+          SIGN UP
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Paper
+          elevation={5}
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ mt: 3, p: 3 }}
+        >
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <TextField
@@ -143,24 +147,20 @@ function Registerr() {
               "Sign Up"
             )}
           </Button>
-          <Typography sx={{ color: colors.grey[500], textAlign: "center" }}>
-            or
-          </Typography>
-          <SignInGoogle sx={{ mb: 1 }} />
           <Grid container justifyContent="flex-end">
             <Grid item color="primary">
-              <Link to="../login" className="link">
-                <Typography
-                  color="primary"
-                  variant="p"
-                  sx={{ textDecoration: "underline" }}
-                >
-                  Already have an account? Sign in
-                </Typography>
-              </Link>
+              <Typography
+                component={Link}
+                to="../login"
+                color="primary"
+                variant="p"
+                sx={{ textDecoration: "underline" }}
+              >
+                Already have an account? Sign in
+              </Typography>
             </Grid>
           </Grid>
-        </Box>
+        </Paper>
       </Grid>
     </Grid>
   );

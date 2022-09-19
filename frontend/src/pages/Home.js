@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import Button from "@mui/material/Button";
 import { Box, TextField, Typography } from "@mui/material";
-import ItemDetail from "./ItemDetail";
+import ItemDetail from "../components/ItemDetail";
 import { UserContext } from "../GlobalContext";
 
 function Home() {

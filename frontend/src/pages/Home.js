@@ -21,13 +21,8 @@ import {
   CardContent,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import Intro from "../components/home/Intro";
-import Serve from "../components/home/Serve";
 import Carousel from "../components/home/Carousel";
 import Categories from "../components/home/Categories";
-import ModalWrapper from "../components/ModalWrapper";
-import ModalLg from "../components/home/ModalLg";
-import ComboModal from "../components/home/ComboModal";
 import ComboCollection from "../components/home/ComboCollection";
 
 // import TestmonialSlider from "../components/UI/slider/TestmonialSlider.jsx";

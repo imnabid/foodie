@@ -57,7 +57,7 @@ function Navbar() {
   return (
     <Grid
       container
-      sx={{ px: 2, py: 1, boxShadow: 2, mb: 1, minHeight: "12vh" }}
+      sx={{ px: 2, boxShadow: 2, mb: 1, minHeight: "12vh", position:'sticky', top:0, background:'white', zIndex:100 }}
     >
       <Grid
         item

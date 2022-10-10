@@ -15,3 +15,7 @@
 .h{
     border: 1px solid black;
 }
+
+ .slick-dots li{
+    margin:0 !important;
+}

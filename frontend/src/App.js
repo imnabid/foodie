@@ -11,7 +11,10 @@ import SnackBar from "./components/SnackBar";
 
 function App() {
   const {showSnackBar} = useContext(UserContext)
-
+  const x = {
+    name:'nabin',
+    age:'24'
+}
   return (
     <div>
       <BrowserRouter>

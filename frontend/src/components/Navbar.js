@@ -20,10 +20,12 @@ import logo from "../images/logo.png";
 import ProfileAvatar from "./ProfileAvatar";
 import { useEffect } from "react";
 import { axiosInstanceGeneral } from "../axios/axios";
+import CartDrawer from "./CartDrawer";
 
 function Navbar() {
-  const { user,setUser, authenticated, setAuthenticated} = useContext(UserContext);
+  const { user,setUser, authenticated, setAuthenticated, cartItems} = useContext(UserContext);
   const [showSearch, setShowSearch] = useState(false);
+  const [showCart, setShowCart] = useState(false);
   let location = useLocation();
 
   useEffect(()=>{
@@ -125,12 +127,13 @@ function Navbar() {
         sx={{ display: showSearch ? "none" : "flex", alignItems: "center" }}
       >
         <Tooltip title="add to cart">
-          <IconButton>
-            <Badge badgeContent={4} color="warning">
+          <IconButton onClick={()=>setShowCart(true)}>
+            <Badge badgeContent={cartItems.num} color="error">
               <ShoppingCartOutlinedIcon sx={{ fontSize: "1.5rem" }} />
             </Badge>
           </IconButton>
         </Tooltip>
+        <CartDrawer {...{setShowCart, showCart}}/>
         {!user && (
           <Tooltip title="login/register">
             <IconButton component={Link} to="login">

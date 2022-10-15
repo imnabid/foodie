@@ -1,8 +1,6 @@
 import * as React from "react";
-import AspectRatio from "@mui/joy/AspectRatio";
-import Typography from "@mui/joy/Typography";
 import image from "../../images/home/sekwa.jpg";
-import { Box, Card, CardActionArea, Rating } from "@mui/material";
+import { Box, Card, CardActionArea, Rating, Typography } from "@mui/material";
 
 export default function ContainerResponsive({ name, handleClick }) {
   return (
@@ -18,9 +16,16 @@ export default function ContainerResponsive({ name, handleClick }) {
       }}
     >
       <CardActionArea  sx={{p:2, borderRadius:'12px'}}>
-        <AspectRatio>
-          <img src={image} alt="none" />
-        </AspectRatio>
+      <Box
+        component="img"
+        src={image}
+        alt="nothing"
+        sx={{
+          width: "100%",
+          height: "70%",
+          objectFit: "cover",
+        }}
+      />
 
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box>
@@ -31,7 +36,7 @@ export default function ContainerResponsive({ name, handleClick }) {
             >
               {name}
             </Typography>
-            <Typography level="body3" sx={{ color: "grey" }}>
+            <Typography variant="body3" color='text.secondary'>
               starts @200
             </Typography>
           </Box>

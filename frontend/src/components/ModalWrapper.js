@@ -9,11 +9,10 @@ import {
 } from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect } from "react";
+import { createContext, useEffect } from "react";
 
-
-
-function ModalWrapper({ show, setShow,setShowCombo, children }) {
+export const closeModalContext = createContext();
+function ModalWrapper({ show, setShow, setShowCombo, children }) {
   const handleClose = () => {
     setShow(false);
     setShowCombo(false);
@@ -49,7 +48,9 @@ function ModalWrapper({ show, setShow,setShowCombo, children }) {
               <CloseIcon />
             </IconButton>
           </Box>
-          {children}
+          <closeModalContext.Provider value={{handleClose}}>
+            {children}
+          </closeModalContext.Provider>
         </Box>
       </Fade>
     </Modal>

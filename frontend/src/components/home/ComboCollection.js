@@ -17,7 +17,7 @@ function ComboCollection() {
           </Typography>
         </Typography>
       </Box>
-      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+      <Box sx={{ display: "flex", gap: {xs:1,md:2}, flexWrap: "wrap" }}>
         {combos.map((combo) => (
           <ComboCard key={combo.name} combo={combo} />
         ))}

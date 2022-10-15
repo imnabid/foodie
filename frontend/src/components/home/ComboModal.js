@@ -47,7 +47,13 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
   const { setCombos, setShowSnackBar } = useContext(UserContext);
 
   const saveCombo = ()=>{
+    
     setCombos((prev)=>[...prev, {name:comboName,items:selectedItems}])
+    setShowSnackBar({
+      show: true,
+      msg: "combo added successfully",
+      type: "success",
+    });
     setShowCreateCombo(false);
     setShowModal(false);
 
@@ -62,6 +68,7 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
     const id = event.target.value;
     const food = menuItems.find((item) => item.id === id);
     setFood(food);
+    // setQuantity(1);
   };
   const deQuantity = () => {
     if (quantity <= 1) {
@@ -90,6 +97,7 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
       const temp = prev.filter((item) => item.name !== food.name);
       return [...temp, { name: food.name, quantity, price: food.price }];
     });
+    
   };
   const handleChipDelete = (name) => {
     setSelectedItems(selectedItems.filter((item) => item.name !== name));

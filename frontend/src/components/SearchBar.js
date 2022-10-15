@@ -53,7 +53,7 @@ function SearchBar({ showSearch, setShowSearch }) {
           value={pattern}
           onChange={handleChange}
           fullWidth
-          color="warning"
+          color="error"
           sx={{
             display: { xs: showSearch ? "flex" : "none", md: "flex" },
             borderRadius: "15px",

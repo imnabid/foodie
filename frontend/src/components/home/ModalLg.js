@@ -14,11 +14,12 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useContext } from "react";
 import { UserContext } from "../../GlobalContext";
+import { closeModalContext } from "../ModalWrapper";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -37,7 +38,34 @@ function ModalLg({ data }) {
   const [quantity, setQuantity] = useState(1);
   const [chipItems, setChipItems] = useState([]);
   const [note, setNote] = useState("");
-  const { setShowSnackBar } = useContext(UserContext);
+  const { cartItems, setCartItems, setShowSnackBar } = useContext(UserContext);
+  const { handleClose } = useContext(closeModalContext); //to close the modal when add to cart is clicked
+
+  const addToCart = () => {
+    //to handle repeated additions
+    let items = cartItems.items;
+    let currentItems = chipItems;
+    let indicesToPop = [];
+    currentItems.forEach((item, index) => {
+      items.forEach((i) => {
+        if (item.name === i.name) {
+          i.quantity += item.quantity;
+          indicesToPop.push(index);
+        }
+      });
+    });
+    currentItems = currentItems.filter((e, i) => !indicesToPop.includes(i));
+    items = items.concat(currentItems);
+    handleClose();
+    setCartItems((prev) => {
+      return { ...prev, note: note, items: items, num: items.length };
+    });
+    setShowSnackBar({
+      show: true,
+      msg: "items added to cart",
+      type: "success",
+    });
+  };
 
   const deQuantity = () => {
     if (quantity <= 1) {
@@ -123,8 +151,9 @@ function ModalLg({ data }) {
             sx={{ width: { xs: "100%", sm: "80%" }, mt: 1 }}
             size="small"
           >
-            <InputLabel id="demo-select-small">choose an item</InputLabel>
+            <InputLabel id="demo-select-small" color="error">choose an item</InputLabel>
             <Select
+              color="error"
               fullWidth
               labelId="demo-select-small"
               id="demo-select-small"
@@ -201,6 +230,8 @@ function ModalLg({ data }) {
           <OutlinedInput
             placeholder="Leave Note(optional)"
             fullWidth
+            color="error"
+            onChange={(e) => setNote(e.target.value)}
             size="small"
             sx={{ fontSize: "14px", height: "1.5rem", mt: 1 }}
           />
@@ -212,7 +243,12 @@ function ModalLg({ data }) {
               mt: 5,
             }}
           >
-            <Button fullWidth size="small" variant="contained">
+            <Button
+              fullWidth
+              size="small"
+              variant="contained"
+              onClick={addToCart}
+            >
               Add to Cart
             </Button>
             <Button fullWidth size="small" variant="contained">

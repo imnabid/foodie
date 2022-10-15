@@ -1,8 +1,11 @@
 import { Box, Card, CardActionArea, Typography } from "@mui/material";
 import React from "react";
 import AddIcon from "@mui/icons-material/Add";
+import { useContext } from "react";
+import { UserContext } from "../GlobalContext";
 
 function CreateCombo({setShowCreateCombo, setShowModal}) {
+
     const handleClick = ()=>{
         setShowModal(true);
         setShowCreateCombo(true);

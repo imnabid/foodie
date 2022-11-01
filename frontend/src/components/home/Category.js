@@ -1,13 +1,10 @@
 import * as React from "react";
-import AspectRatio from "@mui/joy/AspectRatio";
-import Typography from "@mui/joy/Typography";
-import image from "../../images/home/sekwa.jpg";
-import { Box, Card, CardActionArea, Rating } from "@mui/material";
+import { Box, Card, CardActionArea, Typography } from "@mui/material";
 
-export default function ContainerResponsive({ name, handleClick }) {
+export default function ContainerResponsive({ item, handleClick }) {
   return (
     <Card
-    onClick={handleClick}
+    onClick={()=>handleClick(item)}
       variant="outlined"
       sx={{
         width: 300,
@@ -18,31 +15,29 @@ export default function ContainerResponsive({ name, handleClick }) {
       }}
     >
       <CardActionArea  sx={{p:2, borderRadius:'12px'}}>
-        <AspectRatio>
-          <img src={image} alt="none" />
-        </AspectRatio>
+      <Box
+        component="img"
+        src={item.image}
+        alt="nothing"
+        sx={{
+          width: "100%",
+          height: 150,
+          objectFit: "cover",
+        }}
+      />
 
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box sx={{ pt:2, display: "flex", justifyContent: "space-between", alignItems:'center' }}>
           <Box>
             <Typography
               fontWeight="lg"
-              mt={2}
               sx={{ color: "#fd2020", fontSize: "1.2rem" }}
             >
-              {name}
-            </Typography>
-            <Typography level="body3" sx={{ color: "grey" }}>
-              starts @200
+              {item.category_name}
             </Typography>
           </Box>
-          <Rating
-            sx={{ display: "flex", alignItems: "center" }}
-            defaultValue={0}
-            name="read-only"
-            value={2}
-            readOnly
-            size="small"
-          />
+            <Typography variant='body2'  color='text.secondary'>
+              starts @{item.starts_at}
+            </Typography>
         </Box>
       </CardActionArea>
     </Card>

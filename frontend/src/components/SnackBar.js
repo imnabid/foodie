@@ -22,7 +22,7 @@ function SnackBar() {
     setOpen(false);
   };
   return (
-    <Snackbar anchorOrigin={{ vertical:'bottom', horizontal:'right' }} open={open} autoHideDuration={6000} onClose={handleClose}>
+    <Snackbar anchorOrigin={{ vertical:'bottom', horizontal:'right' }} open={open} autoHideDuration={4000} onClose={handleClose}>
         <Alert onClose={handleClose} severity={type} sx={{ width: '100%' }}>
           {msg}
         </Alert>

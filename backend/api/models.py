@@ -1,9 +1,30 @@
+from email.policy import default
+from tabnanny import verbose
+from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, pre_delete
+from django.db.models import Min
+
+class DeliveryAddress(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=200)
+    mobile = models.CharField(max_length=15)
+    city = models.CharField(max_length=200)
+    street = models.CharField(max_length=200)
+    landmark = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = 'Delivery Addresses'
+    def __str__(self):
+        return f'{self.full_name} {self.city}'
 
 class FoodCategory(models.Model):
     category_name = models.CharField(max_length=200)
+    image = models.ImageField(blank=True, null=True)
     description = models.TextField(blank=True)
+    starts_at = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         verbose_name_plural = 'categories'
@@ -13,19 +34,92 @@ class FoodCategory(models.Model):
 
 class Food(models.Model):
     category = models.ForeignKey(FoodCategory, related_name='categories', on_delete=models.CASCADE)
-    item_name = models.CharField(max_length=200, unique=True)
-    price = models.DecimalField(decimal_places=2, max_digits=6)
+    name = models.CharField(max_length=200, unique=True)
+    image = models.ImageField(blank=True, null=True)
+    price = models.PositiveSmallIntegerField(default=0)
     max_order = models.IntegerField(default=5)
+    
 
     def __str__(self):
-        return self.item_name
+        return self.name
+@receiver(pre_save, sender=Food)
+def handle_starts_at(instance,*args, **kwargs):
+    category = instance.category
+    foods = Food.objects.filter(category=category).aggregate(min=Min('price'))
+    category.starts_at = foods.get('min',0)
+    category.save()
+
+
+class Offer(models.Model):
+    food = models.OneToOneField(Food, on_delete=models.CASCADE)
+    price_before = models.PositiveSmallIntegerField(default=0)
+    discount_percent = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return self.food.name
+@receiver(pre_save, sender=Offer)
+def handle_offer_addition(instance,*args, **kwargs):
+    price_before = instance.food.price
+    instance.food.price -= price_before * instance.discount_percent/100           
+    instance.price_before = price_before
+    instance.food.save()
+
+@receiver(pre_delete, sender=Offer)
+def handle_offer_deletion(instance, *args, **kwargs):
+    instance.food.price = instance.price_before 
+    instance.food.save()
+
+
+class ComboItem(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    food = models.ForeignKey(Food, on_delete=models.CASCADE)
+    quantity = models.SmallIntegerField(default=1)
+    def __str__(self):
+        return f'{self.food.name}x{self.quantity}'
+
+class Combo(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    image = models.ImageField(blank=True, null=True)
+    items = models.ManyToManyField(ComboItem)
+
+    def __str__(self):
+        return self.name
+@receiver(pre_delete, sender=Combo)
+def handle_combo_deletion(instance, *args, **kwargs):
+    for comboItem in instance.items.all():
+        comboItem.delete()
+    
+
+class OrderItem(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    food = models.ForeignKey(Food, on_delete=models.CASCADE)
+    quantity = models.SmallIntegerField()
+    total = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return f'{self.food.name}x{self.quantity}'
+
 
 class Order(models.Model):
+    ORDER_STATUS = [
+        ('OT','ORDER TAKEN'),
+        ('P','PREPARING'),
+        ('S','SHIPPED'),
+        ('D','DELIVERED')
+    ]
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    ordered_food = models.ForeignKey(Food, on_delete=models.CASCADE)
-    ordered_date = models.DateTimeField(auto_now_add=True)
-    ordered_quantity = models.IntegerField()
-    price = models.DecimalField(decimal_places=2, max_digits=6)
+    note = models.TextField(blank=True, null=True)
+    food = models.ManyToManyField(OrderItem)
+    date = models.DateTimeField(auto_now_add=True)
+    total = models.PositiveSmallIntegerField(default=0)
+    status = models.CharField(max_length=2, choices=ORDER_STATUS, default='OT')
+    cancelled = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.ordered_food.item_name
+        return f'{self.user.username} {self.total}'
+@receiver(pre_delete, sender=Order)
+def handle_order_deletion(instance, *args, **kwargs):
+    for orderItem in instance.food.all():
+        orderItem.delete()
+    

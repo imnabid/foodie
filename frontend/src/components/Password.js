@@ -3,7 +3,7 @@ import { IconButton, InputAdornment, TextField } from "@mui/material";
 
 import React, { useState } from "react";
 
-function Password({ label, variant, size, sx }) {
+function Password({ label, onChange, helperText, onBlur, error, value, name, variant, size, sx }) {
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
     setShowPassword((prev) => !prev);
@@ -11,19 +11,23 @@ function Password({ label, variant, size, sx }) {
 
   return (
     <TextField
-    required
       sx ={sx}  
       label={label}
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
       fullWidth
-      name='password'
+      name={name}
       size={size}
+      error={error}
+      helperText={helperText}
       variant={variant}
       type={showPassword ? "text" : "password"} // <-- This is where the magic happens
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
             <IconButton onClick={handleClickShowPassword}>
-              {showPassword ? <VisibilityOff /> : <Visibility />}
+              {showPassword ? <Visibility />:<VisibilityOff />}
             </IconButton>
           </InputAdornment>
         ),

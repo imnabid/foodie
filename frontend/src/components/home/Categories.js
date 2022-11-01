@@ -1,32 +1,17 @@
 import { Box, Button } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import Category from "./Category";
 import AddIcon from "@mui/icons-material/Add";
-import CreateCombo from "../CreateCombo";
+import CreateCombo from "./CreateCombo";
 import ModalWrapper from "../ModalWrapper";
 import ComboModal from "./ComboModal";
 import ModalLg from "./ModalLg";
+import { axiosInstanceGeneral } from "../../axios/axios";
+import { useContext } from "react";
+import { UserContext } from "../../GlobalContext";
 
-const CategoryDetail = {
-  menuItems: [
-    { id: 1, name: "Chicken Cmomo", price: 150 },
-    { id: 2, name: "Chicken Pizza", price: 250 },
-    { id: 3, name: "Roast", price: 50 },
-    { id: 4, name: "Plain momo", price: 250 },
-  ],
-  categoryName: "Chicken Item",
-  description:
-    "Lorem Ipsum is simply dummy text of the printing and typesetting",
-};
 
-const cats = [
-  { name: "Momo" },
-  { name: "Chicken Tikka" },
-  { name: "Pizza" },
-  { name: "Pizza2" },
-  { name: "Chicken2 Tikka" },
-];
 const settings = {
   dots: true,
   slidesToShow: 1,
@@ -37,11 +22,25 @@ const settings = {
 
 function Categories() {
   const [showModal, setShowModal] = useState(false);
-  const [modalDetails, setModalDetails] = useState(CategoryDetail);
+  const [modalDetails, setModalDetails] = useState({});
   const [showCreateCombo, setShowCreateCombo] = useState(false);
+  const { categories, setCategories } = useContext(UserContext);
 
-  const handleClick = () => {
-    setShowModal(true);
+  useEffect(() => {
+    axiosInstanceGeneral
+      .get("api/categories/")
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.log("custom err", err));
+  }, []);
+
+  const handleClick = (category) => {
+    axiosInstanceGeneral
+      .get(`api/foods/${category.id}/`)
+      .then((res) => {
+        setModalDetails({ menuItems: res.data, ...category });
+        setShowModal(true);
+      })
+      .catch((err) => console.log("custom err", err));
   };
 
   return (
@@ -53,8 +52,8 @@ function Categories() {
           gap: 2,
         }}
       >
-        {cats.map((item) => (
-          <Category key={item.name} {...item} handleClick={handleClick} />
+        {categories.map((item) => (
+          <Category key={item.id} item={item} handleClick={handleClick} />
         ))}
         <CreateCombo
           setShowModal={setShowModal}
@@ -70,11 +69,10 @@ function Categories() {
         component={Slider}
         {...settings}
       >
-        {cats.map((item) => (
+        {categories.map((item) => (
           // <> is added because Box was displaying inline-block
-          <React.Fragment key={item.name}>
+          <React.Fragment key={item.id}>
             <Box
-              onClick={handleClick}
               sx={{
                 py: 0.5,
                 px: 0.5,
@@ -82,33 +80,41 @@ function Categories() {
                 justifyContent: "center",
               }}
             >
-              <Category {...item} />
+              <Category item={item} handleClick={handleClick} />
             </Box>
           </React.Fragment>
         ))}
       </Box>
-      <Box sx={{display:'flex', justifyContent:'center',mt:1}}>
-      <Button
-        onClick={() => {
-          setShowModal(true);
-          setShowCreateCombo(true);
-        }}
-        sx={{ display:{xs: "block", sm: "none"}, mt: 3 }}
-        variant="outlined"
-        size="small"
-        color="warning"
-      >
-        <AddIcon />
-        Make Custom Combo
-      </Button>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
+        <Button
+          onClick={() => {
+            setShowModal(true);
+            setShowCreateCombo(true);
+          }}
+          sx={{ display: { xs: "block", sm: "none" }, mt: 3 }}
+          variant="outlined"
+          size="small"
+          color="warning"
+        >
+          <AddIcon />
+          Make Custom Combo
+        </Button>
       </Box>
       <ModalWrapper
         show={showModal}
         setShow={setShowModal}
         setShowCombo={setShowCreateCombo}
       >
-        {showCreateCombo ? <ComboModal {...{setShowCreateCombo,setShowModal}}/> : ""}
-        {showModal && !showCreateCombo ? <ModalLg data={modalDetails} /> : ""}
+        {showCreateCombo ? (
+          <ComboModal {...{ setShowCreateCombo, setShowModal }} />
+        ) : (
+          ""
+        )}
+        {showModal && !showCreateCombo ? (
+          <ModalLg data={modalDetails} initialFood={{}} />
+        ) : (
+          ""
+        )}
       </ModalWrapper>
     </>
   );

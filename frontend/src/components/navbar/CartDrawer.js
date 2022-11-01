@@ -1,23 +1,44 @@
-import { Avatar, Box, Button, Drawer, IconButton, Typography } from "@mui/material";
-import React, { useContext, useState } from "react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  Typography,
+} from "@mui/material";
+import React, { useContext } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import image from "../images/login.jpg";
-import { UserContext } from "../GlobalContext";
+import { UserContext } from "../../GlobalContext";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import { useEffect } from "react";
-import { flexbox } from "@mui/system";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 function CartDrawer({ showCart, setShowCart }) {
-  const { cartItems, setCartItems } = useContext(UserContext);
-  const deleteCartItem = (name) => {
-    let newItems = cartItems.items.filter((item) => item.name !== name);
+  const navigate = useNavigate();
+  const { cartItems, setCartItems, setShowSnackBar } = useContext(UserContext);
+
+  const deleteCartItem = (id) => {
+    let newItems = cartItems.items.filter((item) => item.id !== id);
     setCartItems((prev) => {
       return { ...prev, items: newItems, num: newItems.length };
     });
   };
 
+  const closeCart = () => {
+    setShowCart(false);
+  };
+  const handleCheckout = () => {
+    if (!cartItems.items.length) {
+      return setShowSnackBar({
+        show: true,
+        msg: "Add items to cart first",
+        type: "error",
+      });
+    }
+    navigate("checkout");
+    closeCart();
+  };
   return (
-    <Drawer anchor="right" open={showCart} onClose={() => setShowCart(false)}>
+    <Drawer anchor="right" open={showCart} onClose={closeCart}>
       <Box
         sx={{
           width: { xs: "100vw", sm: "50vw", md: "30vw" },
@@ -29,30 +50,32 @@ function CartDrawer({ showCart, setShowCart }) {
       >
         <Box>
           <Box>
-            <IconButton size="large" onClick={() => setShowCart(false)}>
+            <IconButton size="large" onClick={closeCart}>
               <CloseIcon />
             </IconButton>
           </Box>
-          <Typography sx={{ mx: 2, display:'flex', alignItems:'center' }} variant="h6" color="error">
-           <ShoppingCartOutlinedIcon/> Cart Items
+          <Typography
+            sx={{ mx: 2, display: "flex", alignItems: "center" }}
+            variant="h6"
+            color="error"
+          >
+            <ShoppingCartOutlinedIcon /> Cart Items
           </Typography>
-          <Box>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
             {cartItems.items.length ? (
               cartItems.items.map((item) => (
                 <Box
-                  key={item.name}
+                  key={item.id}
                   sx={{
-                    mx: 2,
-                    my: 1,
-                    p: 1.2,
-                    boxShadow:2,
+                    p: 0.5,
+                    boxShadow: 2,
                     borderRadius: "10px",
                     display: "flex",
                     gap: 2,
                     alignItems: "center",
                   }}
                 >
-                  <Avatar alt="Remy Sharp" src={image} />
+                  <Avatar alt={item.name} src={item.image} />
                   <Box sx={{ width: "100%" }}>
                     <Box
                       sx={{
@@ -64,7 +87,7 @@ function CartDrawer({ showCart, setShowCart }) {
                       <Typography color="error">{item.name}</Typography>
                       <IconButton
                         size="small"
-                        onClick={() => deleteCartItem(item.name)}
+                        onClick={() => deleteCartItem(item.id)}
                       >
                         <CloseIcon sx={{ fontSize: "17px" }} />
                       </IconButton>
@@ -82,11 +105,17 @@ function CartDrawer({ showCart, setShowCart }) {
             )}
           </Box>
         </Box>
-        <Button color='error' size='small' variant ='contained' sx={{
-          m:2
-        }}  >
+        <Button
+          onClick={handleCheckout}
+          color="error"
+          size="small"
+          variant="contained"
+          sx={{
+            m: 2,
+          }}
+        >
           <Typography>Checkout</Typography>
-          </Button>
+        </Button>
       </Box>
     </Drawer>
   );

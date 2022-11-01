@@ -13,8 +13,8 @@ class UserRegistrationView(APIView):
         if serializer.is_valid(raise_exception=True):
             instance = serializer.save()
             instance.is_active=False   #for otp
-            instance.save()   
-            send_email(instance.email, instance.otp)
+            instance.save()  
+            send_email(instance.email, instance.otp)           
             return Response({'message':'A OTP has been sent to the provided email'},status=status.HTTP_202_ACCEPTED)
  
 
@@ -24,10 +24,10 @@ class OTPVerificationView(APIView):
         if(serializer.is_valid(raise_exception=True)):
             instance = get_object_or_404(get_user_model(),email=serializer.validated_data.get('email'))
             if instance.is_active:
-                return Response({'status':'user already verified'})
+                return Response({'status':'user already verified'},status=status.HTTP_400_BAD_REQUEST)
             if instance.otp == serializer.validated_data.get('otp'):
                 instance.is_active = True
                 instance.save()
             else:
-                return Response({'status':"provided OTP didn't match"})
+                return Response({'status':"provided OTP didn't match"}, status=status.HTTP_400_BAD_REQUEST)
             return Response({'status':'Account verified successfully'})

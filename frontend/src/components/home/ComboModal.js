@@ -14,6 +14,9 @@ import React, { useContext, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { UserContext } from "../../GlobalContext";
+import { axiosInstanceGeneral } from "../../axios/axios";
+import { useEffect } from "react";
+import { Co2Sharp } from "@mui/icons-material";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -26,49 +29,119 @@ const MenuProps = {
   },
 };
 
-const menuItems = [
-  { id: 1, name: "Chicken Cmomo", price: 150 },
-  { id: 2, name: "Chicken Pizza", price: 250 },
-  { id: 3, name: "Roast", price: 50 },
-  { id: 4, name: "Plain momo", price: 250 },
-];
-const Categories = [
-  { id: 1, name: "Chicken " },
-  { id: 2, name: "Momo" },
-  { id: 3, name: "Pizza" },
-  { id: 4, name: "Veggies" },
-];
-function ComboModal({setShowCreateCombo, setShowModal}) {
+function ComboModal({ setShowCreateCombo, setShowModal }) {
   const [category, setCategory] = useState({});
+  const [menuItems, setMenuItems] = useState([]);
   const [comboName, setcomboName] = useState("");
   const [food, setFood] = useState({});
   const [quantity, setQuantity] = useState(1);
   const [selectedItems, setSelectedItems] = useState([]);
-  const { setCombos, setShowSnackBar } = useContext(UserContext);
+  const { user, categories, combos, comboChange, setComboChange, setShowSnackBar } =
+    useContext(UserContext);
 
-  const saveCombo = ()=>{
-    
-    setCombos((prev)=>[...prev, {name:comboName,items:selectedItems}])
-    setShowSnackBar({
-      show: true,
-      msg: "combo added successfully",
-      type: "success",
+  useEffect(() => {
+    setFood({}); //so that when category is changed item selection is reset
+    if (category.id) {
+      axiosInstanceGeneral
+        .get(`api/foods/${category.id}/`)
+        .then((res) => {
+          setMenuItems(res.data);
+        })
+        .catch((err) => console.log("custom err", err));
+    }
+  }, [category]);
+
+  const saveCombo = (e) => {
+    e.preventDefault();
+    let error = false;
+    combos.forEach((combo) => {
+      if (combo.name.toLowerCase() === comboName.toLowerCase()) {
+        setShowSnackBar({
+          show: true,
+          msg: "combo name already exists",
+          type: "error",
+        });
+        error = true;
+      }
     });
+    if (error) {
+      //return if combo name already exits
+      return;
+    }
+    //store the combo in the database
+    let comboItems = [];
+
+    const postComboItems = async () => {
+      for (let i = 0; i < selectedItems.length; i++) {
+        try {
+          const res = await axiosInstanceGeneral.post(
+            "api/add-combo-item/",
+            {
+              user: user.id,
+              food: selectedItems[i].id,
+              quantity: selectedItems[i].quantity,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                accept: "application/json",
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              },
+            }
+          );
+          comboItems.push(res.data.id);
+        } catch (err) {
+          console.log("custom err", err.response);
+        }
+      }
+    };
+
+    const postCombo = async () => {
+      const res = await postComboItems();
+      //posting comboItems in Combo table
+      axiosInstanceGeneral
+        .post(
+          "api/combo/",
+          {
+            user: user.id,
+            name: comboName,
+            items: comboItems,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              accept: "application/json",
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          }
+        )
+        .then((res) => {
+          setShowSnackBar({
+            show: true,
+            msg: res.data.status,
+            type: "success",
+          });
+          setComboChange(!comboChange);
+          
+        })
+        .catch((err) => console.log(err.response.data));
+    };
+
+    postCombo();
     setShowCreateCombo(false);
     setShowModal(false);
-
-  }
+  };
 
   const handleCategoryChange = (event) => {
     const id = event.target.value;
-    const category = Categories.find((item) => item.id === id);
+    const category = categories.find((item) => item.id === id);
     setCategory(category);
   };
   const handleChange = (event) => {
     const id = event.target.value;
     const food = menuItems.find((item) => item.id === id);
     setFood(food);
-    // setQuantity(1);
+    setQuantity(1);
   };
   const deQuantity = () => {
     if (quantity <= 1) {
@@ -95,9 +168,8 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
     }
     setSelectedItems((prev) => {
       const temp = prev.filter((item) => item.name !== food.name);
-      return [...temp, { name: food.name, quantity, price: food.price }];
+      return [...temp, { ...food, quantity }];
     });
-    
   };
   const handleChipDelete = (name) => {
     setSelectedItems(selectedItems.filter((item) => item.name !== name));
@@ -105,6 +177,8 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
 
   return (
     <Box
+      component="form"
+      onSubmit={saveCombo}
       sx={{
         display: "flex",
         gap: 1,
@@ -114,20 +188,19 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
       }}
     >
       <TextField
-          required
-          fullWidth
-          size="small"
-          id="outlined-basic"
-          label="Enter a combo name"
-          variant="outlined"
-          onChange={(e)=>setcomboName(e.target.value)}
-          sx={{width: { xs: "100%", sm: "80%" }, mt: 1 }}
-        />
+        required
+        fullWidth
+        size="small"
+        id="outlined-basic"
+        label="Enter a combo name"
+        variant="outlined"
+        onChange={(e) => setcomboName(e.target.value)}
+        sx={{ width: { xs: "100%", sm: "80%" }, mt: 1 }}
+      />
       <FormControl
         sx={{ width: { xs: "100%", sm: "80%" }, mt: 1 }}
         size="small"
       >
-        
         <InputLabel id="demo-select-small">choose a category</InputLabel>
         <Select
           required
@@ -139,7 +212,7 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
           onChange={handleCategoryChange}
           MenuProps={MenuProps}
         >
-          {Categories.map((item) => (
+          {categories.map((item) => (
             <MenuItem key={item.id} value={item.id}>
               <Box
                 sx={{
@@ -148,7 +221,7 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
                   width: "100%",
                 }}
               >
-                <Typography>{item.name}</Typography>
+                <Typography>{item.category_name}</Typography>
               </Box>
             </MenuItem>
           ))}
@@ -160,7 +233,7 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
       >
         <InputLabel id="demo-select-small">choose an item</InputLabel>
         <Select
-         required
+          required
           fullWidth
           labelId="demo-select-small"
           id="demo-select-small"
@@ -169,20 +242,22 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
           onChange={handleChange}
           MenuProps={MenuProps}
         >
-          {menuItems.map((item) => (
-            <MenuItem key={item.id} value={item.id}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
-              >
-                <Typography>{item.name}</Typography>
-                <Typography>Rs{item.price}</Typography>
-              </Box>
-            </MenuItem>
-          ))}
+          {menuItems.length
+            ? menuItems.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                    }}
+                  >
+                    <Typography>{item.name}</Typography>
+                    <Typography>Rs{item.price}</Typography>
+                  </Box>
+                </MenuItem>
+              ))
+            : ""}
         </Select>
       </FormControl>
 
@@ -239,7 +314,13 @@ function ComboModal({setShowCreateCombo, setShowModal}) {
           mt: 2,
         }}
       >
-        <Button fullWidth size="small" variant="contained" color="success" onClick={saveCombo}>
+        <Button
+          fullWidth
+          type="submit"
+          size="small"
+          variant="contained"
+          color="success"
+        >
           Save Combo!
         </Button>
       </Box>

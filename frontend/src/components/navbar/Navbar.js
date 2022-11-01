@@ -1,65 +1,77 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Badge,
   Box,
+  Button,
   colors,
   Grid,
   IconButton,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
-import { UserContext } from "../GlobalContext";
+import { UserContext } from "../../GlobalContext";
 import SearchBar from "./SearchBar";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import HomeIcon from "@mui/icons-material/Home";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import logo from "../images/logo.png";
+import logo from "../../images/logo.png";
 import ProfileAvatar from "./ProfileAvatar";
 import { useEffect } from "react";
-import { axiosInstanceGeneral } from "../axios/axios";
 import CartDrawer from "./CartDrawer";
+import useAxiosAuth from "../../axios/useAxiosAuth";
 
 function Navbar() {
-  const { user,setUser, authenticated, setAuthenticated, cartItems} = useContext(UserContext);
+  const {
+    user,
+    setUser,
+    fetchUserInfo,
+    setFetchUserInfo,
+    cartItems
+  } = useContext(UserContext);
   const [showSearch, setShowSearch] = useState(false);
   const [showCart, setShowCart] = useState(false);
-  let location = useLocation();
+  const axiosAuthorized = useAxiosAuth();
+  const location = useLocation();
+  useEffect(() => {
+    //push cartItems to local storage
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
 
-  useEffect(()=>{
-  if (authenticated){
-      axiosInstanceGeneral.get('api/user-info/',{
-        headers:{
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`
-        }
-      })
-      .then(res=>{
-        setUser(res.data)
-        localStorage.setItem('user_info',JSON.stringify(res.data))
-      })
-      .catch(err=>console.log(err))
-    }
-  else{
-    setUser(JSON.parse(localStorage.getItem('user_info')));
-  }
-  
-  },[authenticated, setUser])
+  //authentication
+  useEffect(() => {
+    if(fetchUserInfo){
+      axiosAuthorized
+        .get("api/user-info/", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        })
+        .then((res) => {
+          setUser(res.data);
+          setFetchUserInfo(false);
+        })
+        .catch((err) => {
+          setFetchUserInfo(false);
+        });
+      }
+  }, [fetchUserInfo]);
 
-  useEffect(()=>{
-    if(user){
-      setAuthenticated(true)  // to set authenticated user true on page reload
-    }
-  },[user, setAuthenticated])
-
-
-    
 
   return (
     <Grid
       container
-      sx={{ px: 2, boxShadow: 2, mb: 1, minHeight: "12vh", position:'sticky', top:0, background:'white', zIndex:100 }}
+      sx={{
+        px: 2,
+        boxShadow: 2,
+        mb: 1,
+        minHeight: "12vh",
+        position: "sticky",
+        top: 0,
+        background: "white",
+        zIndex: 500,
+      }}
     >
       <Grid
         item
@@ -73,7 +85,7 @@ function Navbar() {
         }}
       >
         <Link className="link" to="/">
-          <img style={{ height: "2.8rem" }} alt='Logo' src={logo} />
+          <img style={{ height: "2.8rem" }} alt="Logo" src={logo} />
         </Link>
 
         <Box sx={{ ml: 2, display: { xs: "none", md: "flex" } }}>
@@ -127,22 +139,21 @@ function Navbar() {
         sx={{ display: showSearch ? "none" : "flex", alignItems: "center" }}
       >
         <Tooltip title="add to cart">
-          <IconButton onClick={()=>setShowCart(true)}>
+          <IconButton onClick={() => setShowCart(true)}>
             <Badge badgeContent={cartItems.num} color="error">
               <ShoppingCartOutlinedIcon sx={{ fontSize: "1.5rem" }} />
             </Badge>
           </IconButton>
         </Tooltip>
-        <CartDrawer {...{setShowCart, showCart}}/>
+        <CartDrawer {...{ setShowCart, showCart }} />
         {!user && (
           <Tooltip title="login/register">
-            <IconButton component={Link} to="login">
+            <IconButton component={Link} to="login" state={{from:location.pathname}}>
               <LoginOutlinedIcon sx={{ fontSize: "1.5rem" }} />
             </IconButton>
           </Tooltip>
         )}
-        {user?<ProfileAvatar username={user.username} fname={user.first_name} />:null}
-
+        {user ? <ProfileAvatar user={user} /> : null}
       </Grid>
     </Grid>
   );

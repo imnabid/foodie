@@ -9,12 +9,12 @@ import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import image from "../../images/combo.jpg";
 import { Close } from "@mui/icons-material";
 import { UserContext } from "../../GlobalContext";
+import { axiosInstanceGeneral } from "../../axios/axios";
 
 function ComboCard({ combo }) {
   const [total, setTotal] = useState(0);
   const [clicked, setClicked] = useState(false);
-  const { cartItems, setCartItems, setCombos, setShowSnackBar } =
-    useContext(UserContext);
+  const { cartItems, setCartItems, setCombos, setShowSnackBar } = useContext(UserContext);
 
   const addToCart = () => {
     let items = cartItems.items;
@@ -45,13 +45,31 @@ function ComboCard({ combo }) {
   useEffect(() => {
     let sum = 0;
     combo.items.forEach((item) => {
-      sum += item.price;
+      sum += parseInt(item.price) * item.quantity;
     });
     setTotal(sum);
   }, [combo.items]);
 
-  const deleteCombo = () => {
-    setCombos((prevCombos) => prevCombos.filter((c) => c.name !== combo.name));
+  const deleteCombo = (id) => {
+
+    axiosInstanceGeneral.delete(`api/combos/${id}/`,{
+      headers:{
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`
+      }
+    }).
+    then(res=>{
+      if(res.status === 200){
+        setShowSnackBar({
+          show:true,
+          msg:res.data.status,
+          type:'success'
+        })
+        setCombos((prevCombos) => prevCombos.filter((c) => c.id !== combo.id));
+      }
+    })
+    .catch(err=>console.log('custom err',err))
+
+
   };
 
   const handleClick = () => {
@@ -61,6 +79,7 @@ function ComboCard({ combo }) {
     <Box
       sx={{
         width: { xs: 150, sm: 200 },
+        
         borderRadius: "12px",
         position: "relative",
         boxShadow:
@@ -90,7 +109,7 @@ function ComboCard({ combo }) {
         />
         <Chip
           size="small"
-          onClick={deleteCombo}
+          onClick={()=>deleteCombo(combo.id)}
           label={<Close sx={{ fontSize: "20px" }} />}
           sx={{
             borderRadius: "5px",
@@ -99,14 +118,16 @@ function ComboCard({ combo }) {
         />
       </Box>
       <CardActionArea onClick={handleClick} sx={{borderRadius:'12px'}}>
+        <Box sx={{display: !clicked ? "none" : "block",overflowY:'auto',height:200}}>
         <Box
           sx={{
-            display: !clicked ? "none" : "flex",
-            flexWrap: "wrap",
-            gap: 0.5,
-            height: 200,
+            display:"flex",
+            flexWrap:'wrap',
+            gap:0.4,
+            alignItems:'flex-start',
             pt:'40px',
-            px:1
+            px:1,
+            
           }}
         >
           {combo.items.map((item) => (
@@ -117,10 +138,10 @@ function ComboCard({ combo }) {
               label={`${item.name} x${item.quantity}`}
               variant="outlined"
               sx={{
-                cursor: "pointer",
               }}
             />
           ))}
+        </Box>
         </Box>
         <Box sx={{ display: clicked ? "none" : "block", height: 200 }}>
           <Box

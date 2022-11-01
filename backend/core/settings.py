@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-
+from oauth2_provider import settings as oauth2_settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-!jwa-drd86f&bf4&8i*f0v)wqg#)d=__$an0bdux17*+9c*j0t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.66','localhost']
 
 
 # Application definition
@@ -61,7 +61,9 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
-     'http://localhost:3000'
+    ''
+     'http://localhost:3000',
+     'http://192.168.1.66:3000',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -153,6 +155,12 @@ REST_FRAMEWORK = {
 }
 
 #oauth
+
+
+# expires in 6 months
+oauth2_settings.DEFAULTS['ACCESS_TOKEN_EXPIRE_SECONDS'] = 36000
+oauth2_settings.DEFAULTS["CLEAR_EXPIRED_TOKENS_BATCH_SIZE"] = 107
+
 AUTHENTICATION_BACKENDS = (
    'social_core.backends.google.GoogleOAuth2',
    'drf_social_oauth2.backends.DjangoOAuth2',
@@ -175,4 +183,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TSL = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'nabindhakal42@gmail.com'
-EMAIL_HOST_PASSWORD ='remxwdchggepqwpz' 
+EMAIL_HOST_PASSWORD ='mhscfhnmqxworosh' 
+
+# Media
+MEDIA_URL = '/images/'
+MEDIA_ROOT = BASE_DIR / 'images/'

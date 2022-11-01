@@ -8,34 +8,76 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+
 import Password from "../components/Password";
 import image from "../images/register.jpg";
 import SendIcon from "@mui/icons-material/Send";
-import { Link } from "react-router-dom";
-import { handleRegister } from "../axios/handleRequests";
+import { Link, useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import { axiosInstanceGeneral } from "../axios/axios";
+import { useContext } from "react";
+import { UserContext } from "../GlobalContext";
+import { useState } from "react";
+const yup = require("yup");
 
-function Registerr() {
+const passwordRegex = /^(?=.*?[a-z])(?=.*?[#?!@$%^&*-]).{8,}$/;
+const schema = yup.object().shape({
+  first_name: yup.string().required("First Name is required"),
+  last_name: yup.string().required("Last Name is required"),
+  username: yup.string().required("Username is required"),
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: yup
+    .string()
+    // .min(8,'min 8 characters')
+    .matches(
+      passwordRegex,
+      "Minimum eight characters, at least one letter and one special character"
+    )
+    .required("Password is required"),
+  address: yup.string().required("Address is required"),
+});
+
+function Register() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const { setShowSnackBar, setOtpEmail } = useContext(UserContext);
+  const onSubmit = (values) => {
     setLoading(true);
-    const t = e.currentTarget;
-    const userInfo = {
-      first_name: t.firstName.value,
-      last_name: t.lastName.value,
-      username: t.username.value,
-      password: t.password.value,
-      email: t.email.value,
-      address: t.address.value,
-    };
-    setTimeout(() => setLoading(false), 2000);
-    handleRegister(userInfo);
+    axiosInstanceGeneral
+    .post("api/register/", values, {
+      timeout: 10000,
+    })
+    .then((res) => {
+      setLoading(false);
+      setOtpEmail(values.email);
+        setShowSnackBar({
+          show: true,
+          msg: "OTP code sent to your email",
+          type: "success",
+        });
+        navigate("/otp");
+      })
+      .catch((err) => console.log("custom err", err));
   };
+  const { values, touched, errors, handleBlur, handleChange, handleSubmit } =
+    useFormik({
+      initialValues: {
+        first_name: "",
+        last_name: "",
+        username: "",
+        email: "",
+        password: "",
+        address: "",
+      },
+      validationSchema: schema,
+      onSubmit: onSubmit,
+    });
 
   return (
-    <Grid container sx={{ display: "flex", justifyContent: "center" ,pt:4}}>
+    <Grid container sx={{ display: "flex", justifyContent: "center", pt: 4 }}>
       <Grid
         item
         xs={false}
@@ -75,63 +117,84 @@ function Registerr() {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <TextField
-                autoComplete="given-name"
-                name="firstName"
-                required
+                name="first_name"
                 size="small"
                 fullWidth
-                id="firstName"
                 label="First Name"
-                autoFocus
+                value={values.first_name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={!!touched.first_name && !!errors.first_name}
+                helperText={touched.first_name && errors.first_name}
               />
             </Grid>
             <Grid item xs={6}>
               <TextField
-                required
                 size="small"
                 fullWidth
-                id="lastName"
                 label="Last Name"
-                name="lastName"
-                autoComplete="family-name"
+                value={values.last_name}
+                name="last_name"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={!!touched.last_name && !!errors.last_name}
+                helperText={touched.last_name && errors.last_name}
               />
             </Grid>
             <Grid item xs={6}>
               <TextField
                 size="small"
-                required
                 fullWidth
-                id="username"
                 label="Username"
+                value={values.username}
                 name="username"
-                autoComplete="family-name"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={!!touched.username && !!errors.username}
+                helperText={touched.username && errors.username}
               />
             </Grid>
             <Grid item xs={6}>
-              <Password size="small" label="Password" />
+              <Password
+                size="small"
+                label="Password"
+                name="password"
+                value={values.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={!!touched.password && !!errors.password}
+                helperText={touched.password && errors.password}
+              />
             </Grid>
             <Grid item xs={12}>
               <TextField
-                required
                 size="small"
                 fullWidth
-                id="email"
                 label="Email Address"
                 name="email"
-                autoComplete="email"
+                value={values.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={!!touched.email && !!errors.email}
+                helperText={touched.email && errors.email}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 size="small"
-                required
                 fullWidth
-                id="address"
                 label="Address"
                 name="address"
+                value={values.address}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={!!touched.address && !!errors.address}
+                helperText={touched.address && errors.address}
               />
             </Grid>
           </Grid>
+          <Box sx={{position:'relative'}}>
+
           <Button
             sx={{ mt: 2 }}
             fullWidth
@@ -139,14 +202,24 @@ function Registerr() {
             color="primary"
             type="submit"
             variant="contained"
-            endIcon={!loading && <SendIcon />}
-          >
-            {loading ? (
-              <CircularProgress sx={{ color: "white" }} size={20} />
-            ) : (
-              "Sign Up"
-            )}
+            endIcon={<SendIcon />}
+            disabled={loading}
+            >
+            Sign Up
           </Button>
+          {loading && (
+            <CircularProgress
+            size={24}
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              marginTop: "-4px",
+              marginLeft: "-12px",
+            }}
+            />
+            )}
+            </Box>
           <Grid container justifyContent="flex-end">
             <Grid item color="primary">
               <Typography
@@ -166,4 +239,4 @@ function Registerr() {
   );
 }
 
-export default Registerr;
+export default Register;

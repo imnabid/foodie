@@ -18,8 +18,9 @@ import React, { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useContext } from "react";
-import { UserContext } from "../../GlobalContext";
 import { closeModalContext } from "../ModalWrapper";
+import { UserContext } from "../../GlobalContext";
+import { useEffect } from "react";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -32,17 +33,22 @@ const MenuProps = {
   },
 };
 
-function ModalLg({ data }) {
-  const { menuItems, categoryName, description } = data;
-  const [food, setFood] = useState({});
+function ModalLg({ data, initialFood }) { //initial food is used to show selected food on search
+  const { menuItems, category_name, description, image } = data;
+  const [food, setFood] = useState(initialFood);
   const [quantity, setQuantity] = useState(1);
   const [chipItems, setChipItems] = useState([]);
   const [note, setNote] = useState("");
-  const { cartItems, setCartItems, setShowSnackBar } = useContext(UserContext);
+  const { cartItems, setCartItems, setShowSnackBar } = useContext(UserContext)
   const { handleClose } = useContext(closeModalContext); //to close the modal when add to cart is clicked
 
+  useEffect(()=>{ //to add an item when item is clicked through searchbar
+    if(initialFood.name){
+     setChipItems([{ ...food, quantity:1 }])
+    }
+  },[])
   const addToCart = () => {
-    //to handle repeated additions
+    // to handle repeated additions
     let items = cartItems.items;
     let currentItems = chipItems;
     let indicesToPop = [];
@@ -93,7 +99,8 @@ function ModalLg({ data }) {
     }
     setChipItems((prev) => {
       const temp = prev.filter((item) => item.name !== food.name);
-      return [...temp, { name: food.name, quantity, price: food.price }];
+      return [...temp, { ...food, quantity }];
+      // return [...temp, { name: food.name, quantity, price: food.price }];
     });
   };
 
@@ -131,7 +138,7 @@ function ModalLg({ data }) {
         >
           <CardMedia
             component="img"
-            image={require("../../images/home/cmomo.png")}
+            image={image}
             alt="green iguana"
             sx={{ height: "140px" }}
           />
@@ -144,7 +151,7 @@ function ModalLg({ data }) {
       </Grid>
       <Grid item xs={12} sm={8} sx={{ px: 2, mt: { xs: 2, sm: 0 } }}>
         <Typography variant="h5" sx={{ color: "#fd2020" }}>
-          {categoryName}
+          {category_name}
         </Typography>
         <Box>
           <FormControl

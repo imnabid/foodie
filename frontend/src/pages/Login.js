@@ -6,50 +6,73 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useFormik } from "formik";
 import { gapi } from "gapi-script";
 import { useContext, useEffect } from "react";
 import GoogleLogin from "react-google-login";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { axiosInstanceGeneral } from "../axios/axios";
+import useFetchUserInfo from "../axios/useFetchUserInfo";
 import Password from "../components/Password";
 import { UserContext } from "../GlobalContext";
 import image from "../images/login.jpg";
+const yup = require("yup");
+
+const schema = yup.object().shape({
+  username: yup.string().required("Username is required"),
+  password: yup.string().required("Password is required"),
+});
 
 function Login() {
   const navigate = useNavigate();
-  const {setAuthenticated, setShowSnackBar} = useContext(UserContext)
+  const location = useLocation();
+  const fetchInfo = useFetchUserInfo();
+  const from = location.state?.from || "/";
+  const { setFetchUserInfo, setShowSnackBar } = useContext(UserContext);
+
   
-  const handleLogin = (e) => {
-    e.preventDefault();
-    const username = e.target.username.value;
-    const password = e.target.password.value;
+  const handleLogin = (values) => {
     axiosInstanceGeneral
     .post("auth/token/", {
       grant_type: "password",
-      username: username,
-      password: password,
-      client_id: process.env.REACT_APP_CLIENT_ID,
-      client_secret: process.env.REACT_APP_CLIENT_SECRET,
-    })
-    .then((res) => {
-      if ((res.status = 200)) {
-        const data = res.data;
-        localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("refresh_token", data.refresh_token);
-        setShowSnackBar((prev)=>{
-          return {...prev,show:true}
-        })
-        setAuthenticated(true);
-        navigate('/');
-      }
-    })
-    .catch((err) => {
-      setShowSnackBar((prev)=>{
-        return {...prev,show:true, msg:err.response.data.error_description,type:'error'}
+      username: values.username,
+        password: values.password,
+        client_id: process.env.REACT_APP_CLIENT_ID,
+        client_secret: process.env.REACT_APP_CLIENT_SECRET,
       })
-    });
+      .then(async (res) => {
+        if (res.status === 200) {
+          const data = res.data;
+          localStorage.setItem("access_token", data.access_token);
+          localStorage.setItem("refresh_token", data.refresh_token);
+          setShowSnackBar((prev) => {
+            return { ...prev, show: true };
+          });
+          await fetchInfo();
+          navigate(from);
+        }
+      })
+      .catch((err) => {
+        setShowSnackBar((prev) => {
+          return {
+            ...prev,
+            show: true,
+            msg: err.response.data.error_description,
+            type: "error",
+          };
+        });
+      });
   };
-
+  
+  const { values, touched, errors, handleBlur, handleChange, handleSubmit } =
+    useFormik({
+      initialValues: {
+        username: "",
+        password: "",
+      },
+      validationSchema: schema,
+      onSubmit: handleLogin,
+    });
   useEffect(() => {
     // for google auth to work
     function start() {
@@ -67,36 +90,41 @@ function Login() {
 
   const googleSuccess = (response) => {
     axiosInstanceGeneral
-    .post("auth/convert-token", {
-      token: response.accessToken,
-      backend: "google-oauth2",
-      grant_type: "convert_token",
-      client_id: process.env.REACT_APP_CLIENT_ID,
-      client_secret: process.env.REACT_APP_CLIENT_SECRET,
-    })
-    .then((res) => {
-      if ((res.status = 200)) {
-        const data = res.data;
-        localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("refresh_token", data.refresh_token);
-        setAuthenticated(true);
-        setShowSnackBar((prev)=>{
-          return {...prev,show:true}
-        })
-        navigate('/');
-      }
-    })
-    .catch((err) => {
-    console.log('error occured',err)
-    setShowSnackBar((prev)=>{
-      return {...prev,show:true, msg:'Google Login Failed!',type:'error'}
-    })
-
-  });
+      .post("auth/convert-token", {
+        token: response.accessToken,
+        backend: "google-oauth2",
+        grant_type: "convert_token",
+        client_id: process.env.REACT_APP_CLIENT_ID,
+        client_secret: process.env.REACT_APP_CLIENT_SECRET,
+      })
+      .then(async (res) => {
+        if ((res.status = 200)) {
+          const data = res.data;
+          localStorage.setItem("access_token", data.access_token);
+          localStorage.setItem("refresh_token", data.refresh_token);
+          setFetchUserInfo(true);
+          setShowSnackBar((prev) => {
+            return { ...prev, show: true };
+          });
+          await fetchInfo();
+          navigate(from);
+        }
+      })
+      .catch((err) => {
+        console.log("error occured", err);
+        setShowSnackBar((prev) => {
+          return {
+            ...prev,
+            show: true,
+            msg: "Google Login Failed!",
+            type: "error",
+          };
+        });
+      });
   };
 
   return (
-    <Grid container sx={{pt:4}} >
+    <Grid container sx={{ pt: 4 }}>
       <Grid
         item
         xs={false}
@@ -122,20 +150,31 @@ function Login() {
           noValidate
           display="flex"
           flexDirection="column"
-          onSubmit={handleLogin}
+          onSubmit={handleSubmit}
           sx={{ boxShadow: 4, p: 3, mt: 3 }}
         >
           <TextField
-            margin="normal"
             size="small"
-            variant="outlined"
-            required
-            id="username"
+            fullWidth
+            label="Username"
+            value={values.username}
             name="username"
-            label="username"
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={!!touched.username && !!errors.username}
+            helperText={touched.username && errors.username}
             sx={{ mb: 3 }}
           />
-          <Password size="small" label="Password" />
+          <Password
+            size="small"
+            label="Password"
+            name="password"
+            value={values.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={!!touched.password && !!errors.password}
+            helperText={touched.password && errors.password}
+          />
           <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }}>
             Login
           </Button>
@@ -154,7 +193,11 @@ function Login() {
             to="../register"
             color="primary"
             variant="p"
-            sx={{ textDecoration: "underline",display:'flex',justifyContent:'flex-end' }}
+            sx={{
+              textDecoration: "underline",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
           >
             Don't have an account? Sign Up
           </Typography>

@@ -5,7 +5,7 @@ import smtplib, ssl
 from django.conf import settings
 
 def otp_generator():
-    otp = random.randint(1000,10000)
+    otp = random.randint(10000,100000)
     return otp
 
 def send_email(email, otp):

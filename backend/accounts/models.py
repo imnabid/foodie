@@ -59,7 +59,8 @@ class User(AbstractUser):
 @receiver(post_save,  sender=User)
 def save_otp(sender, instance, created, **kwargs):
     if created:
-        instance.otp = otp_generator()
+        otp = otp_generator()
+        instance.otp = otp
         instance.save()
 
 

@@ -14,7 +14,7 @@ function ComboCollection() {
   useEffect(() => {
     if (user) {
       axiosInstanceGeneral
-        .get(`api/combos/${user.id}/`, {
+        .get(`api/combo/`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },

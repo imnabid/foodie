@@ -6,6 +6,31 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, OTPVerificationSerializer
 from .otp import send_email
+from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
+
+class UpdateUserInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):  
+        patch_type = request.data.get('patch_type',None)
+        change_password = False
+        if patch_type == 'change_password':
+            if request.data.get('new_password') == request.data.get('old_password'):
+                return Response({'status':'Same password error'}, status=status.HTTP_403_FORBIDDEN)
+            user = authenticate(username=request.user.username,
+                         password=request.data.get('old_password')) 
+            if user is None:
+                return Response({'status':'Incorrect Password'}, status=status.HTTP_403_FORBIDDEN)
+            
+
+            change_password = True
+        serializer = UserSerializer(request.user, data=request.data,
+        partial=True, context={'change_password':change_password, 'request':request} )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'status':'update failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserRegistrationView(APIView):
     def post(self, request, *args, **kwargs):

@@ -16,7 +16,6 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { UserContext } from "../../GlobalContext";
 import { axiosInstanceGeneral } from "../../axios/axios";
 import { useEffect } from "react";
-import { Co2Sharp } from "@mui/icons-material";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -43,7 +42,7 @@ function ComboModal({ setShowCreateCombo, setShowModal }) {
     setFood({}); //so that when category is changed item selection is reset
     if (category.id) {
       axiosInstanceGeneral
-        .get(`api/foods/${category.id}/`)
+        .get(`api/category-foods/${category.id}/`)
         .then((res) => {
           setMenuItems(res.data);
         })
@@ -77,7 +76,6 @@ function ComboModal({ setShowCreateCombo, setShowModal }) {
           const res = await axiosInstanceGeneral.post(
             "api/add-combo-item/",
             {
-              user: user.id,
               food: selectedItems[i].id,
               quantity: selectedItems[i].quantity,
             },
@@ -103,7 +101,6 @@ function ComboModal({ setShowCreateCombo, setShowModal }) {
         .post(
           "api/combo/",
           {
-            user: user.id,
             name: comboName,
             items: comboItems,
           },

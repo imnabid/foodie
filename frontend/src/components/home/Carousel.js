@@ -1,17 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import CarouItem from "./CarouItem";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import one from "../../images/home/icecream.jpg";
-import two from "../../images/home/chickenoffer.jpg";
-import three from "../../images/home/biryanioffer.jpg";
-import four from "../../images/home/burgeroffer.png";
-import five from "../../images/home/momooffer.png";
-import test from "../../images/home/test.jpg";
+import { axiosInstanceGeneral } from "../../axios/axios";
 const settings = {
   dots: true,
-  slidesToShow: 3,
+  slidesToShow: 1,
   slidesToScroll: 1,
   autoplay: true,
   speed: 1000,
@@ -44,19 +39,23 @@ const settings = {
   ],
 };
 
-const items = [
-  { img: one },
-  { img: test },
-  { img: two },
-  { img: three },
-  { img: four },
-  { img: five },
-];
 function Carousel() {
+  const [items, setItems] = useState();
+
+  useEffect(() => {
+    if (!items) {
+      axiosInstanceGeneral
+        .get("api/images/")
+        .then((res) => {
+          setItems(res.data);
+        })
+        .catch((err) => console.log("custom err", err));
+    }
+  }, [items]);
   return (
     <Slider {...settings}>
-      {items.map((item, i) => (
-        <CarouItem key={i} img={item.img} />
+      {items?.map((item, i) => (
+        <CarouItem key={item.id} img={item.image} />
       ))}
     </Slider>
   );

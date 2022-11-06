@@ -27,7 +27,7 @@ function Password({ label, onChange, helperText, onBlur, error, value, name, var
         endAdornment: (
           <InputAdornment position="end">
             <IconButton onClick={handleClickShowPassword}>
-              {showPassword ? <Visibility />:<VisibilityOff />}
+              {showPassword ? <Visibility fontSize='small' />:<VisibilityOff fontSize='small'/>}
             </IconButton>
           </InputAdornment>
         ),

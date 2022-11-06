@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Badge,
   Box,
-  Button,
   colors,
   Grid,
   IconButton,
@@ -20,44 +19,16 @@ import logo from "../../images/logo.png";
 import ProfileAvatar from "./ProfileAvatar";
 import { useEffect } from "react";
 import CartDrawer from "./CartDrawer";
-import useAxiosAuth from "../../axios/useAxiosAuth";
 
 function Navbar() {
-  const {
-    user,
-    setUser,
-    fetchUserInfo,
-    setFetchUserInfo,
-    cartItems
-  } = useContext(UserContext);
+  const { user, cartItems } = useContext(UserContext);
   const [showSearch, setShowSearch] = useState(false);
   const [showCart, setShowCart] = useState(false);
-  const axiosAuthorized = useAxiosAuth();
   const location = useLocation();
   useEffect(() => {
     //push cartItems to local storage
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
-
-  //authentication
-  useEffect(() => {
-    if(fetchUserInfo){
-      axiosAuthorized
-        .get("api/user-info/", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-        })
-        .then((res) => {
-          setUser(res.data);
-          setFetchUserInfo(false);
-        })
-        .catch((err) => {
-          setFetchUserInfo(false);
-        });
-      }
-  }, [fetchUserInfo]);
-
 
   return (
     <Grid
@@ -148,7 +119,11 @@ function Navbar() {
         <CartDrawer {...{ setShowCart, showCart }} />
         {!user && (
           <Tooltip title="login/register">
-            <IconButton component={Link} to="login" state={{from:location.pathname}}>
+            <IconButton
+              component={Link}
+              to="login"
+              state={{ from: location.pathname }}
+            >
               <LoginOutlinedIcon sx={{ fontSize: "1.5rem" }} />
             </IconButton>
           </Tooltip>

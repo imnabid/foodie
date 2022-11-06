@@ -2,15 +2,14 @@ import { Box, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { axiosAuthorizedInstance, axiosInstanceGeneral } from "../axios/axios";
-import DeleteConfirm from "../components/orders/DeleteConfirm";
+import { axiosInstanceGeneral } from "../axios/axios";
 import OrderCard from "../components/orders/OrderCard";
 import noData from '../images/NoData.png'
 
 function Orders() {
   const [ orderedItems, setOrderedItems ] = useState();
   useEffect(()=>{
-    axiosInstanceGeneral.get('api/order-history/',{
+    axiosInstanceGeneral.get('api/orders/',{
       headers: {
         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       }

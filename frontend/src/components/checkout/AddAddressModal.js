@@ -14,12 +14,11 @@ function AddAddressModal({ setShowModal, address, setAddress }) {
       mobile: e.target.mobile.value,
       city: e.target.city.value,
       street: e.target.street.value,
-      landmark: e.target.landmark.value,
-      user: user.id,
+      landmark: e.target.landmark.value
     };
     axiosInstanceGeneral
       .request({
-        url: address ? `api/update-address/${address.id}/` : "api/address/",
+        url: "api/address/",
         method: address ? "patch" : "post",
         data: data,
         headers: {

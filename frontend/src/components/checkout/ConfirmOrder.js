@@ -25,9 +25,8 @@ function ConfirmOrder({ showConfirm, setShowConfirm }) {
       for (let i = 0; i < cart.length; i++) {
         try {
           const res = await axiosInstanceGeneral.post(
-            "api/order-item/",
+            "api/add-order-item/",
             {
-              user: user.id,
               food: cart[i].id,
               quantity: cart[i].quantity,
               total: cart[i].quantity * cart[i].price,
@@ -53,7 +52,6 @@ function ConfirmOrder({ showConfirm, setShowConfirm }) {
         .post(
           "api/orders/",
           {
-            user: user.id,
             note: cartItems.note,
             food: orderItems.items,
             total: orderItems.total + deliveryCharge,

@@ -13,6 +13,8 @@ const theme = createTheme({
 
 export const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState();
+  const [showOwnerPage, setShowOwnerPage] = useState(false || localStorage.getItem('owner')); //for handling owner login
+
   const [deliveryCharge, setDeliveryCharge] = useState(150);
   const [fetchUserInfo, setFetchUserInfo] = useState(true);
   const [showSnackBar, setShowSnackBar] = useState({
@@ -38,6 +40,8 @@ export const UserContextProvider = ({ children }) => {
     setUser,
     deliveryCharge,
     setDeliveryCharge,
+    showOwnerPage,
+    setShowOwnerPage,
     fetchUserInfo,
     setFetchUserInfo,
     otpEmail,

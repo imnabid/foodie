@@ -1,8 +1,10 @@
 from django.contrib import admin
 
-from api.models import Combo, ComboItem, DeliveryAddress, Food, FoodCategory, Offer, Order, OrderItem
+from api.models import BusinessInfo, Combo, CarouselImage, ComboItem, DeliveryAddress, Food, FoodCategory, Offer, Order, OrderItem
 
 admin.site.register(FoodCategory)
+admin.site.register(CarouselImage)
+admin.site.register(BusinessInfo)
 
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):
@@ -10,7 +12,7 @@ class FoodAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ['id','user', 'food', 'quantity', 'total']
+    list_display = ['id','user','date', 'food', 'quantity', 'total']
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

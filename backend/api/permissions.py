@@ -6,6 +6,13 @@ class IsStaffOrReadOnly(BasePermission):
             request.method in SAFE_METHODS or
             request.user.is_staff
         )
+class IsStaff(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_staff
+
+class IsInstanceOfUser(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
 
 class IsPaymentSuccessful(BasePermission):
     def has_permission(self, request, view):

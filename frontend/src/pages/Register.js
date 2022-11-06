@@ -47,12 +47,12 @@ function Register() {
   const onSubmit = (values) => {
     setLoading(true);
     axiosInstanceGeneral
-    .post("api/register/", values, {
-      timeout: 10000,
-    })
-    .then((res) => {
-      setLoading(false);
-      setOtpEmail(values.email);
+      .post("api/register/", values, {
+        timeout: 10000,
+      })
+      .then((res) => {
+        setLoading(false);
+        setOtpEmail(values.email);
         setShowSnackBar({
           show: true,
           msg: "OTP code sent to your email",
@@ -60,7 +60,11 @@ function Register() {
         });
         navigate("/otp");
       })
-      .catch((err) => console.log("custom err", err));
+      .catch((err) => {
+        console.log("custom err", err);
+      }).finally(()=>{
+        setLoading(false);
+      })
   };
   const { values, touched, errors, handleBlur, handleChange, handleSubmit } =
     useFormik({
@@ -193,33 +197,32 @@ function Register() {
               />
             </Grid>
           </Grid>
-          <Box sx={{position:'relative'}}>
-
-          <Button
-            sx={{ mt: 2 }}
-            fullWidth
-            size="small"
-            color="primary"
-            type="submit"
-            variant="contained"
-            endIcon={<SendIcon />}
-            disabled={loading}
+          <Box sx={{ position: "relative" }}>
+            <Button
+              sx={{ mt: 2 }}
+              fullWidth
+              size="small"
+              color="primary"
+              type="submit"
+              variant="contained"
+              endIcon={<SendIcon />}
+              disabled={loading}
             >
-            Sign Up
-          </Button>
-          {loading && (
-            <CircularProgress
-            size={24}
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              marginTop: "-4px",
-              marginLeft: "-12px",
-            }}
-            />
+              Sign Up
+            </Button>
+            {loading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  marginTop: "-4px",
+                  marginLeft: "-12px",
+                }}
+              />
             )}
-            </Box>
+          </Box>
           <Grid container justifyContent="flex-end">
             <Grid item color="primary">
               <Typography

@@ -4,7 +4,7 @@ from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.dispatch import receiver
-from django.db.models.signals import pre_save, pre_delete
+from django.db.models.signals import pre_save, pre_delete, post_save, post_delete
 from django.db.models import Min
 
 class DeliveryAddress(models.Model):
@@ -19,6 +19,18 @@ class DeliveryAddress(models.Model):
         verbose_name_plural = 'Delivery Addresses'
     def __str__(self):
         return f'{self.full_name} {self.city}'
+
+class CarouselImage(models.Model):
+    image = models.ImageField(upload_to='carousel')
+
+class BusinessInfo(models.Model):
+    service_hrs = models.CharField(max_length=20)
+    contact = models.CharField(max_length=10)
+    address = models.CharField(max_length=200)
+    email = models.EmailField()
+    delivery_charge = models.PositiveSmallIntegerField(default=0)
+    fb = models.CharField(max_length=200, null=True, blank=True) 
+    insta = models.CharField(max_length=200, null=True, blank=True) 
 
 class FoodCategory(models.Model):
     category_name = models.CharField(max_length=200)
@@ -42,11 +54,22 @@ class Food(models.Model):
 
     def __str__(self):
         return self.name
-@receiver(pre_save, sender=Food)
-def handle_starts_at(instance,*args, **kwargs):
+
+@receiver(post_save, sender=Food)
+def handle_starts_at_create(instance,created, *args, **kwargs):
+    if(created):
+        category = instance.category
+        foods = Food.objects.filter(category=category).aggregate(min=Min('price'))
+        category.starts_at = foods.get('min',0)
+        category.save()
+        instance.save()
+@receiver(post_delete, sender=Food)
+def handle_starts_at_delete(instance, *args, **kwargs):
     category = instance.category
     foods = Food.objects.filter(category=category).aggregate(min=Min('price'))
-    category.starts_at = foods.get('min',0)
+    if(not foods.get('min')):
+        category.starts_at = foods.get('min',0)
+    category.starts_at = 0
     category.save()
 
 
@@ -95,6 +118,7 @@ class OrderItem(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     food = models.ForeignKey(Food, on_delete=models.CASCADE)
     quantity = models.SmallIntegerField()
+    date = models.DateField(auto_now_add=True)
     total = models.PositiveSmallIntegerField()
 
     def __str__(self):

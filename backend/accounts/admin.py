@@ -11,7 +11,7 @@ class UserAdmin(BaseUserAdmin):
     list_display = ('username','id','email','is_active', 'is_staff')
     list_filter = ('is_staff','is_active')
     fieldsets = (
-        ('User Info', {'fields': ('username','email','first_name','last_name', 'password')}),
+        ('User Info', {'fields': ('username','email','image','first_name','last_name', 'password')}),
         ('Verification', {'fields': ('otp',)}),
         ('Permissions', {'fields': ('is_staff','is_active')}),
     )

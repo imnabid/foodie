@@ -23,6 +23,10 @@ function ProfileAvatar({ user }) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const handleProfile = ()=>{
+    navigate('profile');
+    handleClose();
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -68,7 +72,7 @@ function ProfileAvatar({ user }) {
         <MenuItem disabled sx={{ display: { xs: "block", md: "none" } }}>
           <Typography color="error">{user.username}</Typography>
         </MenuItem>
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
+        <MenuItem onClick={handleProfile}>Profile</MenuItem>
         <MenuItem component={Link} to='orders' onClick={handleClose}>My Orders</MenuItem>
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>

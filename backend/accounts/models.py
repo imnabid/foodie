@@ -42,6 +42,7 @@ class User(AbstractUser):
             "unique": _("A user with that email already exists."),
         },
         )
+    image = models.ImageField(upload_to='users', null=True, blank=True)
     address = models.CharField(
         _('address'),
         max_length=150,

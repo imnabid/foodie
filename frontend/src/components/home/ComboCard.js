@@ -52,7 +52,7 @@ function ComboCard({ combo }) {
 
   const deleteCombo = (id) => {
 
-    axiosInstanceGeneral.delete(`api/combos/${id}/`,{
+    axiosInstanceGeneral.delete(`api/delete-combo/${id}/`,{
       headers:{
         Authorization: `Bearer ${localStorage.getItem("access_token")}`
       }

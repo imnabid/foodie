@@ -38,7 +38,7 @@ function Checkout() {
   useEffect(() => {
     if (user) {
       axiosInstanceGeneral
-        .get(`api/address/${user.id}/`, {
+        .get(`api/address/`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },

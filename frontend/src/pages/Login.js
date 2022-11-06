@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   colors,
   Grid,
   TextField,
@@ -8,11 +9,12 @@ import {
 } from "@mui/material";
 import { useFormik } from "formik";
 import { gapi } from "gapi-script";
+import { useState } from "react";
 import { useContext, useEffect } from "react";
 import GoogleLogin from "react-google-login";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { axiosInstanceGeneral } from "../axios/axios";
-import useFetchUserInfo from "../axios/useFetchUserInfo";
+import useUserInfo from "../axios/useUserInfo";
 import Password from "../components/Password";
 import { UserContext } from "../GlobalContext";
 import image from "../images/login.jpg";
@@ -24,14 +26,16 @@ const schema = yup.object().shape({
 });
 
 function Login() {
-  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
-  const fetchInfo = useFetchUserInfo();
+  const userInfo = useUserInfo();
   const from = location.state?.from || "/";
   const { setFetchUserInfo, setShowSnackBar } = useContext(UserContext);
 
   
   const handleLogin = (values) => {
+    setLoading(true)
     axiosInstanceGeneral
     .post("auth/token/", {
       grant_type: "password",
@@ -48,8 +52,7 @@ function Login() {
           setShowSnackBar((prev) => {
             return { ...prev, show: true };
           });
-          await fetchInfo();
-          navigate(from);
+          await userInfo(from,null);
         }
       })
       .catch((err) => {
@@ -61,7 +64,10 @@ function Login() {
             type: "error",
           };
         });
-      });
+      })
+      .finally(()=>{
+        setLoading(false);
+      })
   };
   
   const { values, touched, errors, handleBlur, handleChange, handleSubmit } =
@@ -106,8 +112,7 @@ function Login() {
           setShowSnackBar((prev) => {
             return { ...prev, show: true };
           });
-          await fetchInfo();
-          navigate(from);
+          await userInfo(from,null);
         }
       })
       .catch((err) => {
@@ -175,8 +180,20 @@ function Login() {
             error={!!touched.password && !!errors.password}
             helperText={touched.password && errors.password}
           />
-          <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }}>
+          <Button type="submit" disabled={loading} variant="contained" sx={{ mt: 3, mb: 2, position:'relative' }}>
             Login
+            {loading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  marginTop: "-10px",
+                  marginLeft: "-12px",
+                }}
+              />
+            )}
           </Button>
           <Typography textAlign="center" sx={{ color: "gray", mb: 2 }}>
             OR

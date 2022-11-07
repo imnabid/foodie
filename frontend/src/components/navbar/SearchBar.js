@@ -42,7 +42,7 @@ function SearchBar({ showSearch, setShowSearch }) {
   const handleClick = (food, categoryId) => {
     const category = categories.find((item) => item.id === categoryId);
     axiosInstanceGeneral
-      .get(`api/foods/${categoryId}/`)
+      .get(`api/category-foods/${categoryId}/`)
       .then((res) => {
         handleClose();
         setModalDetails({ menuItems: res.data, ...category });

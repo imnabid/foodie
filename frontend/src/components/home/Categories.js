@@ -35,7 +35,7 @@ function Categories() {
 
   const handleClick = (category) => {
     axiosInstanceGeneral
-      .get(`api/foods/${category.id}/`)
+      .get(`api/category-foods/${category.id}/`)
       .then((res) => {
         setModalDetails({ menuItems: res.data, ...category });
         setShowModal(true);

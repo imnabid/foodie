@@ -26,23 +26,52 @@ const dailyOrderInfo = [
   { title: "Total earning", img: earning, value: 3 },
 ];
 
-const overallInfo = [
-  { title: "Sales", img: sales, value: "50k" },
-  { title: "Customers", img: customers, value: "50k" },
-  { title: "Total order delivered", img: items, value: "50k" },
-];
+
+
+const SalesOverview = ({salesNo,customersNo,ordersNo})=>{
+  const overallInfo = [
+    { title: "Sales", img: sales, value: salesNo },
+    { title: "Customers", img: customers, value: customersNo },
+    { title: "Total order delivered", img: items, value: ordersNo },
+  ];
+  return(
+    <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          {overallInfo.map((item) => (
+            <Box key={item.title} sx={{ textAlign: "center" }}>
+              <Box component='img' src={item.img} alt="ditem" width="40px" />
+              <Typography variant="body2">{item.title}</Typography>
+              <Typography variant="h6">{item.value}</Typography>
+            </Box>
+          ))}
+        </Box>
+  )
+}
 
 const Dashboard = () => {
-  useEffect(()=>{
-    console.log('hi')
-  },[])
   return (
-    <Box sx={{m:2,mt:4, display: "flex",flexDirection:{xs:'column',md:'row'}, gap:1.5}}>
-      <Card elevation={4} sx={{p:1,width:{ md:'50%'}}} >
-        <DoughnutChart/>
+    <Box
+      sx={{
+        m: 2,
+        mt: 4,
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        gap: 1.5,
+      }}
+    >
+      <Card elevation={4} sx={{ p: 1, width: { md: "50%" } }}>
+        <DoughnutChart />
+        <SalesOverview salesNo={200} customersNo={20} ordersNo={300}/>
+        
       </Card>
-      <Box sx={{width:{xs:'100%', md:'50%'}}} >
-        <BChart/>
+      <Box sx={{ width: { xs: "100%", md: "50%" } }}>
+        <BChart />
       </Box>
     </Box>
   );

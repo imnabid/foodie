@@ -5,10 +5,6 @@ import {
   Box,
   Avatar,
   IconButton,
-  ToggleButtonGroup,
-  ToggleButton,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useNavigate } from "react-router-dom";

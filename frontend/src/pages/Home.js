@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import React, { useState } from "react";
-// import "bootstrap/dist/css/bootstrap.min.css";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import GppGoodIcon from "@mui/icons-material/GppGood";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-
-import {
-  Box,
-  Typography,
-} from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-=======
->>>>>>> frontend
 import Carousel from "../components/home/Carousel";
 import Categories from "../components/home/Categories";
 import ComboCollection from "../components/home/ComboCollection";

@@ -1,66 +1,58 @@
-import React, { useState } from "react";
-// import "bootstrap/dist/css/bootstrap.min.css";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import GppGoodIcon from "@mui/icons-material/GppGood";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-
-import {
-  Box,
-  Typography,
-} from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import Intro from "../components/home/Intro";
-import Serve from "../components/home/Serve";
 import Carousel from "../components/home/Carousel";
 import Categories from "../components/home/Categories";
-import ModalWrapper from "../components/ModalWrapper";
-import ModalLg from "../components/home/ModalLg";
-import ComboModal from "../components/home/ComboModal";
 import ComboCollection from "../components/home/ComboCollection";
-import OfferCard from "../components/home/OfferCard";
+import Intro from "../components/home/Intro";
 import Offers from "../components/home/Offers";
-
-// import TestmonialSlider from "../components/UI/slider/TestmonialSlider.jsx";
-// import Popular_categories from "./Popular_categories";
-
+import Footer from "../components/home/Footer";
+import Testimonial from "../components/owner/Testimonial";
+import { useContext } from "react";
+import { UserContext } from "../GlobalContext";
+import { useRef } from "react";
+import { Box, Typography } from "@mui/material";
 
 export default function Home() {
-
+  const { offerRef } = useContext(UserContext);
+  const categoryRef = useRef(null)
   return (
-    <Box sx={{ px: 5 }}>
-      {/* <Intro /> */}
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Our{" "}
-          <Typography variant="span" sx={{ color: "#df2020" }}>
-            Services
+    <>
+      <Box sx={{ px: 5 }}>
+        <Intro categoryRef={categoryRef} />
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Our{" "}
+            <Typography variant="span" sx={{ color: "#df2020" }}>
+              Services
+            </Typography>
           </Typography>
-        </Typography>
 
-        <Carousel />
-      </Box>
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Our{" "}
-          <Typography variant="span" sx={{ color: "#df2020" }}>
-            Offers
+          <Carousel />
+        </Box>
+        <Box ref={offerRef} sx={{ mt: 4 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Our{" "}
+            <Typography variant="span" sx={{ color: "#df2020" }}>
+              Offers
+            </Typography>
           </Typography>
-        </Typography>
 
-        <Offers />
-      </Box>
+          <Offers />
+        </Box>
 
-      <ComboCollection />
+        <ComboCollection />
 
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Food{" "}
-          <Typography variant="span" sx={{ color: "#df2020" }}>
-            Categories
+        <Box ref={categoryRef} sx={{ mt: 4 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Food{" "}
+            <Typography variant="span" sx={{ color: "#df2020" }}>
+              Categories
+            </Typography>
           </Typography>
-        </Typography>
-        <Categories />
+          <Categories />
+        </Box>
+
+        <Testimonial />
       </Box>
-    </Box>
+      <Footer />
+    </>
   );
 }

@@ -1,11 +1,10 @@
 import { Box, Card, CardActions, CardHeader, Typography } from "@mui/material";
 import React from "react";
-import { blue, yellow } from "@mui/material/colors";
+import { blue } from "@mui/material/colors";
 import { Paper } from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
-import moment from "moment";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,18 +25,18 @@ ChartJS.register(
   Legend
 );
 
-const Chart = () => {
+const BarChart = ({weeklyData}) => {
   return (
     <Card elevation={4} >
-      <CardHeader title="Weekly Sales" subheader="Total 50k Sales" />
+      <CardHeader title="Weekly Sales By Days" subheader={`Total: ${weeklyData.total_sales} Sales`} />
       <Box>
         <Bar
           data={{
-            labels: "SMTWTFS",
+            labels: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
 
             datasets: [
               {
-                data: [130, 90, 45, 50, 49, 144, 169],
+                data: weeklyData.weekly_sales,
 
                 backgroundColor: blue[500],
                 borderRadius: 5,
@@ -51,38 +50,6 @@ const Chart = () => {
           height={250}
           width={50}
           options={{
-            interaction: {
-              mode: "point",
-            },
-            type: "time",
-            time: {
-              // string/callback - By default, date objects are expected. You may use a pattern string from http://momentjs.com/docs/#/parsing/string-format/ to parse a time string format, or use a callback function that is passed the label, and must return a moment() instance.
-              parser: false,
-              // string - By default, unit will automatically be detected.  Override with 'week', 'month', 'year', etc. (see supported time measurements)
-              unit: "day",
-              backgroundColor: yellow[500],
-              // Number - The number of steps of the above unit between ticks
-              unitStepSize: 1,
-
-              // string - By default, no rounding is applied.  To round, set to a supported time unit eg. 'week', 'month', 'year', etc.
-              round: false,
-
-              // Moment js for each of the units. Replaces `displayFormat`
-              // To override, use a pattern string from http://momentjs.com/docs/#/displaying/format/
-              displayFormats: {
-                max: moment().startOf("year"),
-                min: moment().endOf("year"),
-                millisecond: "SSS [ms]",
-                second: "h:mm:ss a", // 11:20:01 AM
-                minute: "h:mm:ss a", // 11:20:01 AM
-                hour: "MMM D, hA", // Sept 4, 5PM
-                day: "MMM Do", // Sep 4 2015
-                week: "ll", // Week 46, or maybe "[W]WW - YYYY" ?
-                month: "MMM YYYY", // Sept 2015
-                quarter: "[Q]Q - YYYY", // Q3
-                year: "YYYY", // 2015
-              },
-            },
             maintainAspectRatio: false,
 
             responsive: true,
@@ -108,7 +75,6 @@ const Chart = () => {
             plugins: {
               legend: {
                 display: false,
-                position: "top",
               },
             },
           }}
@@ -128,13 +94,13 @@ const Chart = () => {
             <TrendingUpIcon color="primary" />
           </Paper>
           <Typography variant="body2">
-            50k <br /> Sales
+            {weeklyData.total_orders} Total Orders
           </Typography>
           <Paper >
             <AttachMoneyIcon color="primary" />
           </Paper>
           <Typography variant="body2">
-            Rs.50k <br /> Total Profit
+            Rs {weeklyData.total_earning} Total Earning
           </Typography>
         </Box>
       </CardActions>
@@ -142,4 +108,4 @@ const Chart = () => {
   );
 };
 
-export default Chart;
+export default BarChart;

@@ -21,7 +21,7 @@ import { useEffect } from "react";
 import CartDrawer from "./CartDrawer";
 
 function Navbar() {
-  const { user, cartItems } = useContext(UserContext);
+  const { user, cartItems, offerRef } = useContext(UserContext);
   const [showSearch, setShowSearch] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const location = useLocation();
@@ -29,6 +29,10 @@ function Navbar() {
     //push cartItems to local storage
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
+
+  const scrollToOffer = ()=>{
+    offerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center'});
+  }
 
   return (
     <Grid
@@ -78,7 +82,8 @@ function Navbar() {
           </Typography>
           <Typography
             component={Link}
-            to="/"
+            onClick={scrollToOffer}
+            to='/'
             color={colors.grey[500]}
             sx={{
               display: "flex",

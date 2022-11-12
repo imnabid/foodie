@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { axiosInstanceGeneral } from "../../axios/axios";
 import { UserContext } from "../../GlobalContext";
 
-function DeleteConfirm({ showConfirm, setShowConfirm, setCancelled, id }) {
+function DeleteConfirm({ showConfirm, setShowConfirm, id }) {
   const { setShowSnackBar } = useContext(UserContext);
   const handleCancellation = (id) => {
     axiosInstanceGeneral

@@ -1,10 +1,11 @@
 from django.contrib import admin
 
-from api.models import BusinessInfo, Combo, CarouselImage, ComboItem, DeliveryAddress, Food, FoodCategory, Offer, Order, OrderItem
+from api.models import Review, BusinessInfo, Combo, CarouselImage, ComboItem, DeliveryAddress, Food, FoodCategory, Offer, Order, OrderItem
 
 admin.site.register(FoodCategory)
 admin.site.register(CarouselImage)
 admin.site.register(BusinessInfo)
+admin.site.register(Review)
 
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):

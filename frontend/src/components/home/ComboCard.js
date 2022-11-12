@@ -56,8 +56,8 @@ function ComboCard({ combo }) {
       headers:{
         Authorization: `Bearer ${localStorage.getItem("access_token")}`
       }
-    }).
-    then(res=>{
+    })
+    .then(res=>{
       if(res.status === 200){
         setShowSnackBar({
           show:true,
@@ -105,7 +105,7 @@ function ComboCard({ combo }) {
           sx={{
             borderRadius: "5px",
           }}
-          color="warning"
+          color="error"
         />
         <Chip
           size="small"
@@ -114,7 +114,7 @@ function ComboCard({ combo }) {
           sx={{
             borderRadius: "5px",
           }}
-          color="warning"
+          color="error"
         />
       </Box>
       <CardActionArea onClick={handleClick} sx={{borderRadius:'12px'}}>

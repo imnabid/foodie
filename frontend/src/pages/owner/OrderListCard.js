@@ -1,24 +1,62 @@
 import { Box, Button, Chip, Grid, IconButton, Typography } from "@mui/material";
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { axiosInstanceGeneral } from "../../axios/axios";
 
-function OrderListCard() {
+function OrderListCard({ item, status }) {
+  
+  const getNextStatus = ()=>{
+    if(status==='OT') return 'P';
+    if(status==='P') return 'S';
+    if(status==='S') return 'D';
+  }
+
+  const getNextStatusButton = ()=>{
+    if(status==='OT') return 'Prepare';
+    if(status==='P') return 'Shipped';
+    if(status==='S') return 'Delivered';
+  }
+
+  const handleClick = ()=>{
+    axiosInstanceGeneral.patch(`api/order-status/${item.id}/`,{
+      status:getNextStatus()
+    },{
+      headers:{
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`
+      }
+    }).catch(err=>console.log(err))
+  }
+
   return (
     <Box
       sx={{
-        width: {md:"70%"},
-        boxShadow: 5,
+        width: { md: "70%" },
+        boxShadow: 4,
         borderRadius: "10px",
-        px:3,
-        py:1.5
+        px: 3,
+        py: 1.5,
       }}
     >
-        <Box sx={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-            <Typography color='primary'>Order Id:#12</Typography>
-            <Button variant='outlined' size='small' color='warning' endIcon={<NavigateNextIcon />}> Send Forward</Button>
-        </Box>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Typography color="primary">Order Id:#{item.id}</Typography>
+        <Button
+          variant="outlined"
+          size="small"
+          color="warning"
+          endIcon={<NavigateNextIcon />}
+          onClick={handleClick}
+        >
+          {getNextStatusButton()}
+        </Button>
+      </Box>
       <Grid container spacing={2}>
         <Grid
-          item          
+          item
           xs={12}
           md={6}
           sx={{
@@ -28,30 +66,32 @@ function OrderListCard() {
           }}
         >
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <Typography color="error">@nabin123</Typography>
+            <Typography color="error">@{item.user}</Typography>
 
-            <Typography variant='body2' color="text.secondary">2022-11-10 at 4:00pm</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {item.date}
+            </Typography>
           </Box>
           <Typography variant="h6" color="error">
             Order Items:
           </Typography>
-          <Box sx={{ display: "flex", gap: 4 }}>
-            <Chip
-              label="Chicken Tikka Pizza x 3"
-              size="small"
-              color="warning"
-            />
-            <Chip label="Rs 300" size="small" />
-          </Box>
-          <Box sx={{ display: "flex", gap: 4 }}>
-            <Chip label="Veg Momo x 1" size="small" color="warning" />
-            <Chip label="Rs 90" size="small" />
-          </Box>
-          <Box sx={{ display: "flex", gap: 4 }}>
-            <Chip label="Fanta x 3" size="small" color="warning" />
-            <Chip label="Rs 100" size="small" />
-          </Box>
-          <Typography variant='h6' color='error'>Total: Rs490</Typography>
+          {item?.food.map((food) => (
+            <Box key={food.id} sx={{ display: "flex", gap: 4 }}>
+              <Chip
+                label={`${food.name} x ${food.quantity}`}
+                size="small"
+                color="warning"
+              />
+              <Chip label={`Rs ${food.price*food.quantity}`} size="small" />
+            </Box>
+          ))}
+
+          <Typography color="error">
+            Delivery Charge: Rs{item.fee}
+          </Typography>
+          <Typography variant="h6" color="error">
+            Total: Rs{item.total}
+          </Typography>
         </Grid>
         <Grid
           item
@@ -63,17 +103,18 @@ function OrderListCard() {
             gap: 0.5,
           }}
         >
-          <Box sx={{ display: "flex",alignItems:'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography color="error">Note:</Typography>
-            <Typography variant='body2' color="text.secondary">
-              Please add extra cheese to my Pizza
+            <Typography variant="body2" color="text.secondary">
+              {item.note || 'No notes'}
             </Typography>
           </Box>
           <Typography variant="h6" color="error">
             Delivery Information
           </Typography>
-          <Typography color="text.secondary">Banepa-09, Kavre</Typography>
-          <Typography color="text.secondary">9840178664</Typography>
+          <Typography color="text.secondary">{item.address.city},{item.address.street}</Typography>
+          <Typography color="text.secondary">{item.address.landmark}</Typography>
+          <Typography color="text.secondary">{item.address.mobile}</Typography>
         </Grid>
       </Grid>
     </Box>

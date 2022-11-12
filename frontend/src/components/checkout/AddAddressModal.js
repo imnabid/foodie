@@ -1,20 +1,29 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React from "react";
+import { useState } from "react";
 import { useContext } from "react";
 import { axiosInstanceGeneral } from "../../axios/axios";
 import { UserContext } from "../../GlobalContext";
 
 function AddAddressModal({ setShowModal, address, setAddress }) {
-  const { user, setShowSnackBar } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
+  const { setShowSnackBar } = useContext(UserContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     const data = {
       full_name: e.target.name.value,
       mobile: e.target.mobile.value,
       city: e.target.city.value,
       street: e.target.street.value,
-      landmark: e.target.landmark.value
+      landmark: e.target.landmark.value,
     };
     axiosInstanceGeneral
       .request({
@@ -27,9 +36,10 @@ function AddAddressModal({ setShowModal, address, setAddress }) {
       })
       .then((res) => {
         setAddress(res.data);
+        setLoading(false);
         setShowSnackBar({
           show: true,
-          msg: 'update successful',
+          msg: "update successful",
           type: "success",
         });
         setShowModal(false);
@@ -104,8 +114,25 @@ function AddAddressModal({ setShowModal, address, setAddress }) {
         label="Landmark(optional)"
         defaultValue={address?.landmark}
       />
-      <Button color="success" type="submit" variant="contained">
+      <Button
+        color="success"
+        type="submit"
+        variant="contained"
+        disabled={loading}
+      >
         Submit
+        {loading && (
+          <CircularProgress
+            size={24}
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              marginTop: "-10px",
+              marginLeft: "-12px",
+            }}
+          />
+        )}
       </Button>
     </Box>
   );

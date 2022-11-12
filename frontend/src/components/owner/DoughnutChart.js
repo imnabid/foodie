@@ -1,13 +1,5 @@
-import {
-  Box,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  Typography,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 import { axiosInstanceGeneral } from "../../axios/axios";
@@ -34,6 +26,7 @@ ChartJS.register(
 );
 
 const ChartInfo = ({ item, amount }) => {
+
   return (
     <Box sx={{ display: "wrap" }}>
       <Box sx={{ display: "flex", mt: 2, gap: 0.5 }}>
@@ -62,74 +55,32 @@ const datasetsInitial = {
   cutout: "65%",
 };
 
-function DoughnutChart() {
-  const [data, setData] = useState();
-  const [categories, setCategories] = useState();
+function DoughnutChart({ weeklyData }) {
 
-  useEffect(() => {
-    axiosInstanceGeneral
-      .get("api/categories/")
-      .then((res) => {
-        const labels = res.data.map((item) => item.category_name);
-        const values = res.data.map((item) => item.id);
-        const colors = res.data.map((i) => {
-          const r = Math.floor(Math.random() * 256);
-          const g = Math.floor(Math.random() * 256);
-          const b = Math.floor(Math.random() * 256);
-          const rgb = `rgb(${r},${g},${b})`;
-          return rgb;
-        });
-        setCategories(res.data);
-        setData({
-          labels: labels,
-          datasets: [
-            {
-              data: values,
-              backgroundColor: colors,
-              ...datasetsInitial,
-            },
-          ],
-        });
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  const r = Math.floor(Math.random() * 256);
+  const g = Math.floor(Math.random() * 256);
+  const b = Math.floor(Math.random() * 256);
+  const rgb = `rgb(${r},${g},${b})`;
+  const labels = weeklyData.categories.map(category=>category.name);
+  const values = weeklyData.categories.map(category=>category.sales);
+  const colors = weeklyData.categories.map((i) => {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    const rgb = `rgb(${r},${g},${b})`;
+    return rgb;
+  });
 
-  //   const data = {
-  //     labels: [
-  //       "Momo",
-  //       "Pizza",
-  //       "Chowmein",
-  //       "Beverage",
-  //       "dessert",
-  //       "Khajaset",
-  //       " Burger",
-  //     ],
-
-  // datasets: [
-  //   {
-  //     data: [130, 90, 45, 50, 49, 144, 169],
-
-  //     backgroundColor: [
-  //       "rgb(255, 0, 0)",
-  //       "rgb(255, 127, 0)",
-  //       "rgb(255, 255, 0)",
-  //       "rgb(0, 255, 0)",
-  //       "rgb(0, 0, 255)",
-  //       "rgb(46, 43, 95)",
-  //       "rgb(139, 0, 255)",
-  //     ],
-  //     borderRadius: 1,
-  //     borderSkipped: false,
-  //     arcPercentage: 0.6,
-  //     categoryPercentage: 1,
-  //     hoverBorderWidth: 1,
-  //     borderJoinStyle: "round",
-  //     borderWidth: 0.5,
-  //     radius: "80%",
-  //     cutout: "65%",
-  //   },
-  // ],
-  //   };
+  const data = {
+    labels: labels,
+    datasets: [
+      {
+        data: values,
+        backgroundColor: colors,
+        ...datasetsInitial,
+      },
+    ],
+  }
 
   const hoverLabel = [
     {
@@ -147,7 +98,7 @@ function DoughnutChart() {
           ctx.fillStyle = grey[700];
           ctx.textAlign = "center";
 
-          ctx.fillText("100k", width / 2, height / 2);
+          ctx.fillText(weeklyData.total_sales, width / 2, height / 2);
           ctx.font = "bolder 12px courier";
           ctx.fillText("Overall Sales", width / 2, height / 2 + 15);
         }
@@ -195,9 +146,7 @@ function DoughnutChart() {
 
   return (
     <Box>
-      <Typography variant="h5">Sales Overview</Typography>
-      {data ? (
-        <Box sx={{ display: { xs: "block", md: "flex" }, gap: 2 }}>
+      <Typography variant="h5" sx={{textAlign:'center'}}>Weekly Sales Overview</Typography>
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Box sx={{ width: { xs: 300, md: 200 } }}>
               <Doughnut data={data} options={config} plugins={hoverLabel} />
@@ -206,23 +155,19 @@ function DoughnutChart() {
           <Box
             sx={{
               display: "flex",
-              gap: 1.2,
+              gap: 2,
               flexWrap: "wrap",
               justifyContent: "center",
             }}
           >
-            {categories?.map((item) => (
+            {weeklyData.categories.map((item) => (
               <ChartInfo
-                key={item.id}
-                item={item.category_name}
-                amount={item.id * 100}
+                key={item.name}
+                item={item.name}
+                amount={item.total}
               />
             ))}
           </Box>
-        </Box>
-      ) : (
-        <Typography>Null</Typography>
-      )}
     </Box>
   );
 }

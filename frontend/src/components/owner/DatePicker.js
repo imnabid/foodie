@@ -6,14 +6,15 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import { useState } from 'react';
 
-export default function MaterialUIPickers(props) {
-  const [value, setValue] = useState(()=>{
-    
-    return new Date()
-  });
+export default function DatePicker({label, start, setDates}) {
+  const [value, setValue] = useState(null);
 
   const handleChange = (newValue) => {
     setValue(newValue);
+    setDates(prev=>{
+      if(start) return {...prev, start:newValue.$d.toLocaleDateString()}
+      return {...prev, end:newValue.$d.toLocaleDateString()}
+    })
   };
 
   return (
@@ -21,7 +22,7 @@ export default function MaterialUIPickers(props) {
       <Stack spacing={3} >
     
         <MobileDatePicker
-          label={props.label}
+          label={label}
           inputFormat="MM/DD/YYYY"
           value={value}
           onChange={handleChange}

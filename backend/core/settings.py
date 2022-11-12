@@ -27,12 +27,13 @@ SECRET_KEY = 'django-insecure-!jwa-drd86f&bf4&8i*f0v)wqg#)d=__$an0bdux17*+9c*j0t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.66','localhost']
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.65','localhost']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #3rd party
+    'channels',
     'accounts.apps.AccountsConfig',
     'corsheaders',
     'rest_framework',
@@ -64,6 +66,7 @@ CORS_ORIGIN_WHITELIST = [
     ''
      'http://localhost:3000',
      'http://192.168.1.66:3000',
+     'http://192.168.1.65:3000',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -87,7 +90,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
+ASGI_APPLICATION = 'core.asgi.application'
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

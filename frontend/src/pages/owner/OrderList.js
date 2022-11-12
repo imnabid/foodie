@@ -1,36 +1,90 @@
-import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import React from 'react'
-import { useState } from 'react';
-import OrderListCard from './OrderListCard'
+import {
+  Box,
+  CircularProgress,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
+import React, { useEffect } from "react";
+import { useState } from "react";
+import {
+  OrdersPreparing,
+  OrdersShipped,
+  OrdersTaken,
+} from "./CurrentOrdersDisplay";
 
 function OrderList() {
-    const [alignment, setAlignment] = useState("placed");
+  const [alignment, setAlignment] = useState("OT");
+  const [loading, setLoading] = useState(false);
+  const [OT, SetOT] = useState(0);
+  const [P, SetP] = useState(0);
+  const [S, SetS] = useState(0);
+  const [orders, setOrders] = useState();
 
   const handleChange = (e, newAlignment) => {
     setAlignment(newAlignment);
   };
-//   const getComponent = ()=>{
-//     if(alignment === 'categories') return <AddCategories/>
-//     if(alignment === 'foods') return <AddFoods/>
-//     return <AddOffers/>
-//   };
+
+  const getTitle = () => {
+    if (alignment === "OT") return "PLACED ORDERS";
+    if (alignment === "P") return "ORDERS IN PREPARATION";
+    if (alignment === "S") return "ORDERS SHIPPED";
+  };
+  const getStatusComponent = () => {
+    if (alignment === "OT")
+      return <OrdersTaken orders={orders} status={alignment} />;
+    if (alignment === "P")
+      return <OrdersPreparing orders={orders} status={alignment} />;
+    if (alignment === "S")
+      return <OrdersShipped orders={orders} status={alignment} />;
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    const socket = new WebSocket("ws://localhost:8000/order-list/");
+    socket.onopen = (e) => {
+      socket.send(alignment);
+    };
+    socket.onmessage = (e) => {
+      const payload = JSON.parse(e.data);
+      SetOT(payload.OT);
+      SetP(payload.P);
+      SetS(payload.S);
+      setOrders(payload.data);
+      setLoading(false);
+    };
+    return () => {
+      socket.close();
+    };
+  }, [alignment]);
+
   return (
-    <Box sx={{m:2}}>
-        <ToggleButtonGroup
+    <Box sx={{ m: 2 }}>
+      <ToggleButtonGroup
         color="warning"
         value={alignment}
         exclusive
         onChange={handleChange}
         aria-label="Platform"
-        sx={{mb:2, display:'flex',justifyContent:{xs:'center',md:'flex-start'}}}
+        sx={{
+          mb: 2,
+          display: "flex",
+          justifyContent: { xs: "center", md: "flex-start" },
+        }}
       >
-        <ToggleButton value="placed">PLACED(6)</ToggleButton>
-        <ToggleButton value="preparing">PREPARING(2)</ToggleButton>
-        <ToggleButton value="shipped">SHIPPED(4)</ToggleButton>
+        <ToggleButton value="OT">PLACED({OT})</ToggleButton>
+        <ToggleButton value="P">PREPARING({P})</ToggleButton>
+        <ToggleButton value="S">SHIPPED({S})</ToggleButton>
       </ToggleButtonGroup>
-        <OrderListCard/>
+      <Typography variant="h6" color="error">
+        {getTitle()}
+      </Typography>
+      <Box sx={{ textAlign: "center" }}>
+        {loading && <CircularProgress color="warning" />}
+      </Box>
+      {orders && !loading ? getStatusComponent() : null}
     </Box>
-  )
+  );
 }
 
-export default OrderList
+export default OrderList;

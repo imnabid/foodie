@@ -1,9 +1,7 @@
 import React from "react";
 import {
-  Grid,
   Typography,
   Box,
-  Avatar,
   IconButton,
   ToggleButtonGroup,
   ToggleButton,
@@ -11,7 +9,6 @@ import {
   useTheme,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import LogoutIcon from "@mui/icons-material/Logout";
 import logo from '../../images/logo.png';
 import CloseIcon from "@mui/icons-material/Close";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -37,7 +34,7 @@ const Sidebar = ({showSideBar, setShowSideBar}) => {
 
   useEffect(()=>{
     setShowSideBar(matches)
-  },[matches])
+  },[matches, setShowSideBar])
 
   const handleChange = (event, nextView) => {
     setView(nextView);
@@ -50,12 +47,11 @@ const Sidebar = ({showSideBar, setShowSideBar}) => {
         flexDirection: "column",
         justifyContent: "space-between",
         backgroundColor: "#0F1B2A",
-        position: "absolute",
+        position: "fixed",
         width: { md: "20%", xs: "100%" },
         top: 0,
         left:0,
-        minHeight: "100%",
-        zIndex:100
+        bottom:0
       }}
     >
       <Box>

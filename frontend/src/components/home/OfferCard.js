@@ -58,7 +58,7 @@ function OfferCard({ offer }) {
             borderRadius: "5px",
           }}
           label={`${discount_percent}% off`}
-          color="warning"
+          color='error'
         />
         <Chip
           size="small"
@@ -67,7 +67,7 @@ function OfferCard({ offer }) {
           sx={{
             borderRadius: "5px",
           }}
-          color="warning"
+          color='error'
         />
       </Box>
 

@@ -13,9 +13,10 @@ import { axiosInstanceGeneral } from "../../axios/axios";
 import { UserContext } from "../../GlobalContext";
 
 function ConfirmOrder({ showConfirm, setShowConfirm }) {
-  const { user, cartItems, setCartItems, setShowSnackBar, deliveryCharge } =
+  const { cartItems, setCartItems, setShowSnackBar, deliveryCharge } =
     useContext(UserContext);
   const navigate = useNavigate();
+
   const handleConfirmation = () => {
     //store the orderItem in the database
     let orderItems = { items: [], total: 0 };
@@ -69,13 +70,14 @@ function ConfirmOrder({ showConfirm, setShowConfirm }) {
             type: "success",
           });
           setCartItems({ note: "", items: [], num: 0 });
-          navigate('/');
+          navigate('/order-complete');
         })
         .catch((err) => console.log(err.response.data));
     };
 
     postOrder();
     handleClose();
+
   };
 
   const handleClose = () => {

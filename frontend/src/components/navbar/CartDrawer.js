@@ -68,7 +68,7 @@ function CartDrawer({ showCart, setShowCart }) {
                   key={item.id}
                   sx={{
                     p: 0.5,
-                    boxShadow: 2,
+                    boxShadow: 4,
                     borderRadius: "10px",
                     display: "flex",
                     gap: 2,
@@ -84,15 +84,15 @@ function CartDrawer({ showCart, setShowCart }) {
                         alignItems: "center",
                       }}
                     >
-                      <Typography color="error">{item.name}</Typography>
+                      <Typography variant='h6' color="error" sx={{fontSize:'18px'}}>{item.name}</Typography>
                       <IconButton
                         size="small"
                         onClick={() => deleteCartItem(item.id)}
                       >
-                        <CloseIcon sx={{ fontSize: "17px" }} />
+                        <CloseIcon sx={{ fontSize: "18px" }} />
                       </IconButton>
                     </Box>
-                    <Typography color="text.secondary">
+                    <Typography variant='body2' color="text.secondary">
                       x{item.quantity} price: Rs{item.price * item.quantity}
                     </Typography>
                   </Box>
@@ -112,9 +112,10 @@ function CartDrawer({ showCart, setShowCart }) {
           variant="contained"
           sx={{
             m: 2,
+            fontSize:'15px',
+            fontWeight:'bold'
           }}
-        >
-          <Typography>Checkout</Typography>
+        >Checkout
         </Button>
       </Box>
     </Drawer>

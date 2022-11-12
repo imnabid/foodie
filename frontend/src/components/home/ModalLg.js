@@ -21,6 +21,7 @@ import { useContext } from "react";
 import { closeModalContext } from "../ModalWrapper";
 import { UserContext } from "../../GlobalContext";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -33,20 +34,23 @@ const MenuProps = {
   },
 };
 
-function ModalLg({ data, initialFood }) { //initial food is used to show selected food on search
+function ModalLg({ data, initialFood }) {
+  //initial food is used to show selected food on search
+  const navigate = useNavigate();
   const { menuItems, category_name, description, image } = data;
   const [food, setFood] = useState(initialFood);
   const [quantity, setQuantity] = useState(1);
   const [chipItems, setChipItems] = useState([]);
   const [note, setNote] = useState("");
-  const { cartItems, setCartItems, setShowSnackBar } = useContext(UserContext)
+  const { cartItems, setCartItems, setShowSnackBar } = useContext(UserContext);
   const { handleClose } = useContext(closeModalContext); //to close the modal when add to cart is clicked
 
-  useEffect(()=>{ //to add an item when item is clicked through searchbar
-    if(initialFood.name){
-     setChipItems([{ ...food, quantity:1 }])
+  useEffect(() => {
+    //to add an item when item is clicked through searchbar
+    if (initialFood.name) {
+      setChipItems([{ ...food, quantity: 1 }]);
     }
-  },[])
+  }, []);
   const addToCart = () => {
     // to handle repeated additions
     let items = cartItems.items;
@@ -72,6 +76,12 @@ function ModalLg({ data, initialFood }) { //initial food is used to show selecte
       type: "success",
     });
   };
+
+  const handleCheckout = ()=>{
+    addToCart();
+    navigate('checkout');
+
+  }
 
   const deQuantity = () => {
     if (quantity <= 1) {
@@ -124,7 +134,7 @@ function ModalLg({ data, initialFood }) { //initial food is used to show selecte
     return total;
   };
 
-  //
+  
 
   //category modal
   return (
@@ -158,7 +168,9 @@ function ModalLg({ data, initialFood }) { //initial food is used to show selecte
             sx={{ width: { xs: "100%", sm: "80%" }, mt: 1 }}
             size="small"
           >
-            <InputLabel id="demo-select-small" color="error">choose an item</InputLabel>
+            <InputLabel id="demo-select-small" color="error">
+              choose an item
+            </InputLabel>
             <Select
               color="error"
               fullWidth
@@ -199,7 +211,9 @@ function ModalLg({ data, initialFood }) { //initial food is used to show selecte
               color="success"
               onClick={addItem}
               endIcon={<AddIcon />}
-              sx={{ borderRadius: "12px" }}
+              sx={{
+                borderRadius: "12px",
+              }}
             >
               Add
             </Button>
@@ -255,10 +269,21 @@ function ModalLg({ data, initialFood }) { //initial food is used to show selecte
               size="small"
               variant="contained"
               onClick={addToCart}
+              sx={{
+                borderRadius: "12px",
+              }}
             >
               Add to Cart
             </Button>
-            <Button fullWidth size="small" variant="contained">
+            <Button
+              fullWidth
+              size="small"
+              variant="contained"
+              sx={{
+                borderRadius: "12px",
+              }}
+              onClick={handleCheckout}
+            >
               Checkout
             </Button>
           </Box>

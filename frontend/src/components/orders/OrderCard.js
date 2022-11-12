@@ -4,7 +4,9 @@ import {
   Button,
   Chip,
   Collapse,
+  OutlinedInput,
   Paper,
+  Rating,
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
@@ -14,27 +16,52 @@ import Status from "./Status";
 import { useContext } from "react";
 import { UserContext } from "../../GlobalContext";
 import { axiosInstanceGeneral } from "../../axios/axios";
-import { useEffect } from "react";
-import DeleteConfirm from "./DeleteConfirm";
 
 const statusChoices = {
   OT: ["Order Taken", 0],
   P: ["Preparing", 1],
   S: ["Shipped", 2],
-  D: ["Delivered", 3],
+  D: ["Delivered", 4],
 };
 
-function OrderCard({ item }) {
+function OrderCard({ item, userReview, setUserReview }) {
   const [showStatus, setShowStatus] = useState(false);
   const [arrowDownIcon, setArrowDownIcon] = useState(true);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [cancelled, setCancelled] = useState(false);
-  const [cancelExpired, setCancelExpired] = useState(false);
-  const { cancellationTime } = useContext(UserContext);
+  const [showReview, setShowReview] = useState(false);
+  const [reviewVal, setReviewVal] = useState(userReview.rate);
+  const {  setShowSnackBar } = useContext(UserContext);
 
   const handleClick = () => {
     setArrowDownIcon(!arrowDownIcon);
     setShowStatus(!showStatus);
+  };
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+    const msg = e.target.reviewMsg.value;
+    axiosInstanceGeneral
+      .post(
+        "api/user-review/",
+        {
+          message: msg,
+          rate: reviewVal,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      )
+      .then((res) => {
+        setUserReview({ rate: reviewVal, message: msg });
+        setShowReview(false);
+        setShowSnackBar({
+          show: true,
+          msg: res.data.status,
+          type: "success",
+        });
+      })
+      .catch((err) => console.log(err));
   };
   return (
     <Paper elevation={3} sx={{ p: 1, width: { xs: "90%", sm: "60%" } }}>
@@ -56,17 +83,15 @@ function OrderCard({ item }) {
             {item.date}
           </Typography>
         </Box>
-        {item.cancelled || cancelled ? (
-          <Chip size="small" label="Cancelled" />
-        ) : (
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 1,
+              alignItems: "center",
+            }}
+          >
             <Chip size="small" label={statusChoices[item.status][0]} />
-            <Chip
-              size="small"
-              label="Cancel"
-              disabled={cancelExpired}
-              onDelete={() => setShowConfirm(true)}
-            />
             <Button
               variant="outlined"
               endIcon={
@@ -82,8 +107,10 @@ function OrderCard({ item }) {
             >
               Status
             </Button>
+            <Button color="warning" onClick={() => setShowReview(true)}>
+              Review
+            </Button>
           </Box>
-        )}
       </Box>
 
       <Box
@@ -137,14 +164,59 @@ function OrderCard({ item }) {
             </Typography>
           </Box>
         ))}
-        <Box sx={{ display: "flex", justifyContent: "flex-end",px:2 }}>
-          <Typography color="error" sx={{width:{xs:'30%',sm:'25%'}}}>Total: Rs{item.total}</Typography>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", px: 2 }}>
+          <Typography color="error" sx={{ width: { xs: "30%", sm: "25%" } }}>
+            Total: Rs{item.total}
+          </Typography>
         </Box>
+        {showReview && (
+          <Box
+            component="form"
+            onSubmit={handleReviewSubmit}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 1.5,
+            }}
+          >
+            <Typography variant="h6" color="error">
+              {" "}
+              Kindly rate our services and write a feedback
+            </Typography>
+            <Rating
+              value={reviewVal}
+              onChange={(event, newVal) => {
+                setReviewVal(newVal);
+              }}
+            />
+            <Box sx={{ width: "100%", display: "flex", gap: 1 }}>
+              <OutlinedInput
+                color="warning"
+                fullWidth
+                size="small"
+                name="reviewMsg"
+                placeholder={userReview.message}
+                sx={{
+                  borderRadius: "12px",
+                }}
+              />
+              <Button
+                size="small"
+                variant="contained"
+                color="warning"
+                type="submit"
+              >
+                Submit
+              </Button>
+            </Box>
+          </Box>
+        )}
       </Box>
-      <DeleteConfirm
-        {...{ showConfirm, setShowConfirm, setCancelled }}
+      {/* <DeleteConfirm
+        {...{ showConfirm, setShowConfirm }}
         id={item.id}
-      />
+      /> */}
     </Paper>
   );
 }

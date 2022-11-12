@@ -8,6 +8,16 @@ import noData from '../images/NoData.png'
 
 function Orders() {
   const [ orderedItems, setOrderedItems ] = useState();
+  const [ userReview, setUserReview ] = useState({rate:0, message:'Your Review'});
+  useEffect(()=>{
+    axiosInstanceGeneral.get('api/user-review/',{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      }
+    })
+    .then(res=>setUserReview(res.data))
+    .catch(err=>console.log('custom err', err.response))
+  },[])
   useEffect(()=>{
     axiosInstanceGeneral.get('api/orders/',{
       headers: {
@@ -23,7 +33,7 @@ function Orders() {
     <Typography variant='h5' color='error'>Your Orders</Typography>
     {
       orderedItems?orderedItems.map(item=>(
-        <OrderCard key={item.id} item={item} />
+        <OrderCard key={item.id} {...{item, userReview, setUserReview}} />
       ))
       :
       <Box sx={{display:'flex',flexDirection:'column', alignItems:'center',justifyContent:'center'}}>

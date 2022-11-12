@@ -1,8 +1,23 @@
 from rest_framework import serializers
 from .models import  (
 Combo, CarouselImage, ComboItem, DeliveryAddress,
-FoodCategory, Food, Offer,  Order, OrderItem, BusinessInfo)
+FoodCategory, Food, Offer,  Order, OrderItem, BusinessInfo, Review)
 from zoneinfo import ZoneInfo
+from accounts.serializers import UserSerializer
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    class Meta:
+        model = Review
+        fields = '__all__'
+        read_only_fields = ['user']
+    def get_user(self, obj):
+        data = UserSerializer(obj.user, context=self.context).data
+        return {'name':data['username'], 'image':data['image']}
+
+class DateSerializer(serializers.Serializer):
+    start = serializers.DateField(input_formats=['%m/%d/%Y'])
+    end = serializers.DateField(input_formats=['%m/%d/%Y'])
 
 class DeliveryAddressSerializer(serializers.ModelSerializer):
     class Meta:
@@ -80,7 +95,7 @@ class OrderItemHistorySerializer(serializers.ModelSerializer):
     category = serializers.SerializerMethodField()
     class Meta:
         model = OrderItem
-        fields = '__all__'
+        fields = ['id','date','user', 'category', 'food', 'quantity','total']
     def get_user(self,obj):
         return obj.user.username
     def get_food(self, obj):
@@ -89,14 +104,14 @@ class OrderItemHistorySerializer(serializers.ModelSerializer):
         return obj.food.category.category_name
 
 class OrderHistorySerializer(serializers.Serializer):
-    date = serializers.DateTimeField(default_timezone=ZoneInfo('Asia/Kathmandu'))
+    date = serializers.DateTimeField(format='%Y-%m-%d %I:%M %p', default_timezone=ZoneInfo('Asia/Kathmandu'))
 
     def to_representation(self, instance):
         date = super().to_representation(instance)
         i = instance
         return {
             'id':i.id,
-            'user':i.user.id,
+            'user':i.user.username,
             'note':i.note,
             'total':i.total,
             'date':date.get('date'),
@@ -108,8 +123,35 @@ class OrderHistorySerializer(serializers.Serializer):
                 for oitem in instance.food.all()
             ]
         }
-    
+class OwnerOrderListSerializer(serializers.Serializer):
+    date = serializers.DateTimeField(format='%Y-%m-%d %I:%M %p', default_timezone=ZoneInfo('Asia/Kathmandu'))
 
+    def to_representation(self, instance):
+        date = super().to_representation(instance)
+        i = instance
+        address = DeliveryAddress.objects.get(user=i.user) 
+        return {
+            'id':i.id,
+            'user':i.user.username,
+            'note':i.note,
+            'total':i.total,
+            'date':date.get('date'),
+            'cancelled':i.cancelled,
+            'status':i.status,
+            'food':[
+                {**FoodSerializer(oitem.food, context=self.context).data,
+                'quantity':oitem.quantity }
+                for oitem in instance.food.all()
+            ],
+            'address':DeliveryAddressSerializer(address).data,
+            'fee':BusinessInfo.objects.first().delivery_charge
+        }
+    
+class OrderListSerializer(serializers.ModelSerializer):
+    food = OrderHistorySerializer(read_only=True, many=True)
+    class Meta:
+        model = Order
+        fields = '__all__'
 
 class OfferSerializer(serializers.ModelSerializer):
     food = FoodSerializer(read_only=True)

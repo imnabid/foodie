@@ -42,6 +42,9 @@ const OwnerNavbar = () => {
     <Box
       sx={{
         display: "flex",
+        position:'sticky',
+        top:0,
+        zIndex:99,
         alignItems: "center",
         py:0.5,
         pr:3,

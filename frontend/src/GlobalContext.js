@@ -1,4 +1,5 @@
 import { createTheme, ThemeProvider } from "@mui/material";
+import { useRef } from "react";
 import { createContext, useState } from "react";
 
 export const UserContext = createContext();
@@ -9,6 +10,11 @@ const theme = createTheme({
       main: "#fd2020",
     },
   },
+  typography:{
+    h5:{
+      fontFamily:'RocknRoll One'
+    }
+  }
 });
 
 export const UserContextProvider = ({ children }) => {
@@ -22,11 +28,11 @@ export const UserContextProvider = ({ children }) => {
     msg: "Login Successful!",
     type: "success",
   });
+  const offerRef = useRef(null);
   const [categories, setCategories] = useState([]);
   const [combos, setCombos] = useState([]);
   const [comboChange, setComboChange] = useState(false);
   const [otpEmail, setOtpEmail] = useState("dhakalnabin209@gmail.com");
-  const [cancellationTime, setCancellationTime] = useState(60); //in seconds
   const [cartItems, setCartItems] = useState(
     JSON.parse(localStorage.getItem("cartItems")) || {
       note: "",
@@ -38,6 +44,7 @@ export const UserContextProvider = ({ children }) => {
   const info = {
     user,
     setUser,
+    offerRef,
     deliveryCharge,
     setDeliveryCharge,
     showOwnerPage,

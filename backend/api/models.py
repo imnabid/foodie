@@ -6,6 +6,8 @@ from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, pre_delete, post_save, post_delete
 from django.db.models import Min
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 class DeliveryAddress(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
@@ -87,6 +89,7 @@ def handle_offer_addition(instance,*args, **kwargs):
     instance.price_before = price_before
     instance.food.save()
 
+
 @receiver(pre_delete, sender=Offer)
 def handle_offer_deletion(instance, *args, **kwargs):
     instance.food.price = instance.price_before 
@@ -147,3 +150,21 @@ def handle_order_deletion(instance, *args, **kwargs):
     for orderItem in instance.food.all():
         orderItem.delete()
     
+@receiver(post_save, sender=Order)
+def handle_websocket_order_list(instance,created, *args, **kwargs):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)('order-list',{
+        'type':'order.list',
+        'status':instance.status
+    })
+
+class Review(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    message = models.TextField(blank=True, null=True)
+    rate = models.PositiveSmallIntegerField(default=1)
+    approved = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.user.username

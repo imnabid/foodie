@@ -22,9 +22,12 @@ import OrderHistory from "./pages/owner/OrderHistory";
 import OwnerProfile from "./pages/owner/OwnerProfile";
 import AddItem from "./pages/owner/AddItem";
 import OrderList from "./pages/owner/OrderList";
+import OrderComplete from "./pages/OrderComplete";
+import NotFound from "./pages/NotFound";
+import NotLoggedIn from "./components/NotLoggedIn";
 
 function App() {
-  const { user, showSnackBar, showOwnerPage } = useContext(UserContext);
+  const { showSnackBar, showOwnerPage } = useContext(UserContext);
   const location = useLocation();
   const userInfo = useUserInfo();
 
@@ -38,6 +41,7 @@ function App() {
     };
     fetchData();
   }, []);
+
   return (
     <div>
       {!showOwnerPage ? (
@@ -45,15 +49,18 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-            <Route path="otp" element={<Otp />} />
-            <Route path="profile" element={<CustomerProfile />} />
-
-            <Route element={<LoginRequired />}>
-              <Route path="/checkout" element={<Checkout />} />
+            <Route element={<NotLoggedIn />}>
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+              <Route path="otp" element={<Otp />} />
             </Route>
-            <Route path="/orders" element={<Orders />} />
+            <Route path="order-complete" element={<OrderComplete />} />
+            <Route element={<LoginRequired />}>
+              <Route path="profile" element={<CustomerProfile />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/orders" element={<Orders />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </>
       ) : (
@@ -71,6 +78,7 @@ function App() {
                 <Route path="/customercare" element={<CustomerCare />} />
                 <Route path="/order-list" element={<OrderList />} />
                 <Route path="/orderhistory" element={<OrderHistory />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Grid>
           </Grid>

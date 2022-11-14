@@ -9,8 +9,8 @@ def otp_generator():
     return otp
 
 def send_email(email, otp):
-    subject = 'Foodie registration OTP verification'
-    message = f'OTP for registration to Foodie is {otp}'
+    subject = 'Foodie  OTP verification'
+    message = f'Your OTP code is {otp}'
     sender = settings.EMAIL_HOST_USER
     password = settings.EMAIL_HOST_PASSWORD
 

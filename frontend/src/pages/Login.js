@@ -15,6 +15,8 @@ import GoogleLogin from "react-google-login";
 import { Link, useLocation } from "react-router-dom";
 import { axiosInstanceGeneral } from "../axios/axios";
 import useUserInfo from "../axios/useUserInfo";
+import ForgotPassword from "../components/login/ForgotPassword";
+import ModalWrapper from "../components/ModalWrapper";
 import Password from "../components/Password";
 import { UserContext } from "../GlobalContext";
 import image from "../images/login.jpg";
@@ -26,20 +28,19 @@ const schema = yup.object().shape({
 });
 
 function Login() {
-
   const [loading, setLoading] = useState(false);
   const location = useLocation();
   const userInfo = useUserInfo();
   const from = location.state?.from || "/";
   const { setFetchUserInfo, setShowSnackBar } = useContext(UserContext);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
-  
   const handleLogin = (values) => {
-    setLoading(true)
+    setLoading(true);
     axiosInstanceGeneral
-    .post("auth/token/", {
-      grant_type: "password",
-      username: values.username,
+      .post("auth/token/", {
+        grant_type: "password",
+        username: values.username,
         password: values.password,
         client_id: process.env.REACT_APP_CLIENT_ID,
         client_secret: process.env.REACT_APP_CLIENT_SECRET,
@@ -52,7 +53,7 @@ function Login() {
           setShowSnackBar((prev) => {
             return { ...prev, show: true };
           });
-          await userInfo(from,null);
+          await userInfo(from, null);
         }
       })
       .catch((err) => {
@@ -65,11 +66,11 @@ function Login() {
           };
         });
       })
-      .finally(()=>{
+      .finally(() => {
         setLoading(false);
-      })
+      });
   };
-  
+
   const { values, touched, errors, handleBlur, handleChange, handleSubmit } =
     useFormik({
       initialValues: {
@@ -112,7 +113,7 @@ function Login() {
           setShowSnackBar((prev) => {
             return { ...prev, show: true };
           });
-          await userInfo(from,null);
+          await userInfo(from, null);
         }
       })
       .catch((err) => {
@@ -180,7 +181,12 @@ function Login() {
             error={!!touched.password && !!errors.password}
             helperText={touched.password && errors.password}
           />
-          <Button type="submit" disabled={loading} variant="contained" sx={{ mt: 3, mb: 2, position:'relative' }}>
+          <Button
+            type="submit"
+            disabled={loading}
+            variant="contained"
+            sx={{ mt: 3, position: "relative" }}
+          >
             Login
             {loading && (
               <CircularProgress
@@ -195,6 +201,29 @@ function Login() {
               />
             )}
           </Button>
+          <Typography
+            component={Link}
+            onClick={() => setShowForgotModal(true)}
+            to="#"
+            color="primary"
+            variant="p"
+            sx={{
+              textDecoration: "underline",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            Forgot password?
+          </Typography>
+          {
+            <ModalWrapper
+              show={showForgotModal}
+              setShow={setShowForgotModal}
+              setShowCombo={() => false} //dummy function
+            >
+              <ForgotPassword setShowForgotModal={setShowForgotModal} />
+            </ModalWrapper>
+          }
           <Typography textAlign="center" sx={{ color: "gray", mb: 2 }}>
             OR
           </Typography>

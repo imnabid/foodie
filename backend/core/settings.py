@@ -63,7 +63,6 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
-    ''
      'http://localhost:3000',
      'http://192.168.1.66:3000',
      'http://192.168.1.65:3000',

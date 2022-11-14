@@ -18,6 +18,7 @@ import { UserContext } from "../GlobalContext";
 import { useEffect } from "react";
 import { axiosInstanceGeneral } from "../axios/axios";
 import ConfirmOrder from "../components/checkout/ConfirmOrder";
+import KhaltiPayment from "../components/checkout/KhaltiPayment";
 
 const OrderSummaryTemplate = ({ title, value }) => (
   <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -34,6 +35,11 @@ function Checkout() {
   const [address, setAddress] = useState();
   const [summary, setSummary] = useState([]);
   const { user, cartItems,deliveryCharge, setCartItems, setShowSnackBar } = useContext(UserContext);
+  const [showKhaltiModal, setShowKhaltiModal] = useState(false);
+
+  const handlePayWithKhalti = ()=>{
+    setShowKhaltiModal(true);
+  }
 
   useEffect(() => {
     if (user) {
@@ -225,7 +231,7 @@ function Checkout() {
             display: "flex",
             flexDirection: "column",
             gap: 2.5,
-            height: 350,
+            height: 450,
           }}
         >
           <Typography variant="h6" color="error">
@@ -263,6 +269,17 @@ function Checkout() {
           {
             showConfirm && <ConfirmOrder {...{showConfirm,setShowConfirm}}/>
           }
+          <Typography sx={{textAlign:'center'}}>OR</Typography>
+          <Button variant='contained' color='primary' onClick={handlePayWithKhalti}>
+                Pay With Khalti
+          </Button>
+          {/* <ModalWrapper
+          show={showKhaltiModal}
+          setShow={setShowKhaltiModal}
+          setShowCombo={()=>false} //dummy function
+          >
+            <KhaltiPayment username={user.username}/>
+          </ModalWrapper> */}
         </Box>
       </Grid>
     </Grid>

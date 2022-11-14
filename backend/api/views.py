@@ -18,6 +18,7 @@ ComboSerializer, ComboSerializerGet,DeliveryAddressSerializer,
 FoodSerializer, FoodCategorySerializer,DateSerializer,OfferSerializer,
 OrderHistorySerializer, OrderItemSerializer, OrderItemHistorySerializer,
 OrderSerializer, ReviewSerializer)
+from accounts.models import User
 
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -27,6 +28,8 @@ from .permissions import (IsInstanceOfUser, IsStaff, IsStaffOrReadOnly,
 IsAuthenticatedOrReadOnly)
 from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 from rest_framework.pagination import LimitOffsetPagination
+from accounts.otp import send_email, otp_generator
+
 
 class LoggedInUserInfo(APIView):
     permission_classes = [IsAuthenticated]
@@ -34,6 +37,32 @@ class LoggedInUserInfo(APIView):
     def get(self, request, *args, **kwargs):
         serializer = UserSerializer(request.user, context={'request':request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ForgotPassword(APIView):
+
+    def post(self, request, *args, **kwargs):
+        otp = request.data.get('otp',None)
+        user = get_object_or_404(User, email=request.data['email'])
+        if otp is None:
+            email = request.data['email']            
+            otp_code = otp_generator()
+            user.otp = otp_code
+            user.save()
+            send_email(email, otp_code)
+            return Response({'status':'OTP code sent to your email'}, status=
+            status.HTTP_200_OK
+            )
+        else:
+            if user.otp == otp:
+                password = request.data['password']
+                user.set_password(password)
+                user.save()
+                return Response({'status':'password changed'})
+            return Response({'status':'OTP didnt match'}, status=
+            status.HTTP_403_FORBIDDEN
+            )
+
+
 
 
 class UserReviews(APIView): #for homepage and owner page

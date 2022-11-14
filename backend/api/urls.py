@@ -31,6 +31,7 @@ urlpatterns = [
    path('reviews/', views.UserReviews.as_view(),name='user-reviews'),
    path('reviews/<int:pk>/', views.ShowUserReview.as_view(),name='show-at-home'),
    path('weekly-summary/', views.SalesOverview.as_view(),name='weekly-sales'),
+   path('forgot-password/', views.ForgotPassword.as_view(),name='forgot-password'),
 
 
    

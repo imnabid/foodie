@@ -1,8 +1,8 @@
 import { Box, Typography, Paper, Button } from "@mui/material";
 import DatePicker from "../../components/owner/DatePicker";
-import { CSVLink} from "react-csv";
-import {DataGrid} from "@mui/x-data-grid";
-import DownloadIcon from '@mui/icons-material/Download';
+import { CSVLink } from "react-csv";
+import { DataGrid } from "@mui/x-data-grid";
+import DownloadIcon from "@mui/icons-material/Download";
 import { useState, useEffect } from "react";
 import { axiosInstanceGeneral } from "../../axios/axios";
 import { useRef } from "react";
@@ -51,7 +51,6 @@ const initializeDate = () => {
   return { start: start, end: end };
 };
 
-
 const OrderHistory = () => {
   const csvLink = useRef(null);
   const [dates, setDates] = useState(() => initializeDate());
@@ -70,39 +69,35 @@ const OrderHistory = () => {
     setPath("history-date");
     setFetchData(true);
   };
- 
 
-//to handle csv download
-  useEffect(()=>{
-    if(csvData){
+  //to handle csv download
+  useEffect(() => {
+    if (csvData) {
       csvLink.current.link.click();
       setCsvData(null);
     }
-
-  },[csvData])
-  const handleDownloadCSV = (event,done) => {
+  }, [csvData]);
+  const handleDownloadCSV = (event, done) => {
     axiosInstanceGeneral
-        .request({
-          method: path === "history-date" ? "post" : "get",
-          url: `api/${path}/`,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          params: {
-            limit: count,
-            offset: 0,
-          },
-          data: {
-            start: dates.start,
-            end: dates.end,
-          },
-        })
-        .then((res) => {
-          setCsvData(res.data.results);
-          
-        })
-        .catch((err) => console.log("history err", err))
-
+      .request({
+        method: path === "history-date" ? "post" : "get",
+        url: `api/${path}/`,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        params: {
+          limit: count,
+          offset: 0,
+        },
+        data: {
+          start: dates.start,
+          end: dates.end,
+        },
+      })
+      .then((res) => {
+        setCsvData(res.data.results);
+      })
+      .catch((err) => console.log("history err", err));
   };
 
   const handlePageChange = (newPageNo) => {
@@ -143,11 +138,10 @@ const OrderHistory = () => {
     }
   }, [limit, offset, fetchData, path]);
 
-
-  const getFileName = ()=>{
+  const getFileName = () => {
     const date = new Date();
     return date.toLocaleDateString();
-  }
+  };
   return (
     <Box
       sx={{
@@ -185,8 +179,16 @@ const OrderHistory = () => {
         </Button>
       </Box>
       <Box sx={{ width: { md: "90%" } }}>
-        <Button size='small' onClick={handleDownloadCSV} endIcon={<DownloadIcon/>}>export csv</Button>
-        {csvData && <CSVLink ref={csvLink} data={csvData} filename={getFileName()} />}
+        <Button
+          size="small"
+          onClick={handleDownloadCSV}
+          endIcon={<DownloadIcon />}
+        >
+          export csv
+        </Button>
+        {csvData && (
+          <CSVLink ref={csvLink} data={csvData} filename={getFileName()} />
+        )}
         <Box sx={{ height: 400, width: "100%" }}>
           {
             <DataGrid
@@ -199,7 +201,10 @@ const OrderHistory = () => {
               pagination
               paginationMode="server"
               onPageChange={handlePageChange}
-              onPageSizeChange={(val) => setLimit(val)}
+              onPageSizeChange={(val) => {
+                setLimit(val);
+                setFetchData(true);
+              }}
               rowsPerPageOptions={[5, 10, 15, 25]}
               disableSelectionOnClick
               experimentalFeatures={{ newEditingApi: true }}

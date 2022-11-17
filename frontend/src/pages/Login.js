@@ -29,6 +29,7 @@ const schema = yup.object().shape({
 
 function Login() {
   const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const location = useLocation();
   const userInfo = useUserInfo();
   const from = location.state?.from || "/";
@@ -92,7 +93,7 @@ function Login() {
   }, []);
 
   const googleFail = (response) => {
-    console.log(response);
+    setLoadingGoogle(false)
   };
 
   const googleSuccess = (response) => {
@@ -126,7 +127,8 @@ function Login() {
             type: "error",
           };
         });
-      });
+      })
+      .finally(() => setLoadingGoogle(false));
   };
 
   return (
@@ -227,13 +229,30 @@ function Login() {
           <Typography textAlign="center" sx={{ color: "gray", mb: 2 }}>
             OR
           </Typography>
-
-          <GoogleLogin
-            onSuccess={googleSuccess}
-            onFailure={googleFail}
-            theme="dark"
-            cookiePolicy={"single_host_origin"}
-          />
+          <Box onClick={()=>setLoadingGoogle(true)} 
+          sx={{position:'relative'}}>
+            <GoogleLogin
+              className="google-login"
+              disabled={loadingGoogle}
+              onSuccess={googleSuccess}
+              onFailure={googleFail}
+              theme="dark"
+              cookiePolicy={"single_host_origin"}
+            />
+            {loadingGoogle && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  marginTop: "-10px",
+                  marginLeft: "-12px",
+                  zIndex: 70,
+                }}
+              />
+            )}
+          </Box>
           <Typography
             component={Link}
             to="../register"

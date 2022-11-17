@@ -26,7 +26,8 @@ class UpdateUserInfoView(APIView):
             
 
             change_password = True
-        elif patch_type == 'change_image':
+        
+        elif request.user.image != '' and patch_type == 'change_image':
             os.remove(request.user.image.path)
         serializer = UserSerializer(request.user, data=request.data,
         partial=True, context={'change_password':change_password, 'request':request} )

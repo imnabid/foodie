@@ -253,6 +253,7 @@ class UserCombos(APIView):
         
     def delete(self, request, *args, **kwargs):
         id = kwargs.get('pk')
+        print('deleting')
         combo = Combo.objects.get(id=id)
         self.check_object_permissions(request, combo)
         for citem in combo.items.all():

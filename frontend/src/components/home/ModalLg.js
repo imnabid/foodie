@@ -52,6 +52,14 @@ function ModalLg({ data, initialFood }) {
     }
   }, []);
   const addToCart = () => {
+    if (!chipItems.length) {
+      setShowSnackBar({
+        show: true,
+        msg: "choose an item first",
+        type: "error",
+      });
+      return;
+    }
     // to handle repeated additions
     let items = cartItems.items;
     let currentItems = chipItems;
@@ -77,11 +85,18 @@ function ModalLg({ data, initialFood }) {
     });
   };
 
-  const handleCheckout = ()=>{
+  const handleCheckout = () => {
+    if (!chipItems.length) {
+      setShowSnackBar({
+        show: true,
+        msg: "choose an item first",
+        type: "error",
+      });
+      return;
+    }
     addToCart();
-    navigate('checkout');
-
-  }
+    navigate("checkout");
+  };
 
   const deQuantity = () => {
     if (quantity <= 1) {
@@ -134,8 +149,6 @@ function ModalLg({ data, initialFood }) {
     return total;
   };
 
-  
-
   //category modal
   return (
     <Grid container>
@@ -143,7 +156,7 @@ function ModalLg({ data, initialFood }) {
         <Card
           sx={{
             boxShadow: { xs: 0, sm: 3 },
-            height: { xs: "250px", sm: "60vh" },
+            height: { xs: "250px", sm: "90%" },
           }}
         >
           <CardMedia

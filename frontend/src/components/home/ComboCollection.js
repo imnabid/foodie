@@ -3,13 +3,20 @@ import React, { useContext, useEffect, useState } from "react";
 import { axiosInstanceGeneral } from "../../axios/axios";
 import { UserContext } from "../../GlobalContext";
 import ComboCard from "./ComboCard";
+import blue from '../../images/combo/blue.png'
+import black from '../../images/combo/black.jpg'
+import green from '../../images/combo/green.png'
+import pink from '../../images/combo/pink.png'
+
+const IMAGES = {
+  0:pink,
+  1:blue,
+  2:black,
+  3:green
+}
 
 function ComboCollection() {
   const { combos, setCombos,comboChange,setComboChange, user } = useContext(UserContext);
-
-  // useEffect(()=>{
-  //   console.log('combo', combos)
-  // },[combos])    
 
   useEffect(() => {
     if (user) {
@@ -35,15 +42,15 @@ function ComboCollection() {
             <Typography variant="h5" sx={{ mb: 2 }}>
               Your{" "}
               <Typography variant="span" sx={{ color: "#df2020" }}>
-                Combo
+                Combos
               </Typography>
             </Typography>
           </Box>
           <Box
             sx={{ display: "flex", gap: { xs: 1, md: 2 }, flexWrap: "wrap" }}
           >
-            {combos.map((combo) => (
-              <ComboCard key={combo.name} combo={combo} />
+            {combos.map((combo, i) => (
+              <ComboCard key={combo.name} combo={combo} image={IMAGES[i%4]}/>
             ))}
           </Box>
         </Box>

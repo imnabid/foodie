@@ -1,6 +1,4 @@
-from email.policy import default
-from tabnanny import verbose
-from tkinter import CASCADE
+import os
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.dispatch import receiver
@@ -36,7 +34,7 @@ class BusinessInfo(models.Model):
 
 class FoodCategory(models.Model):
     category_name = models.CharField(max_length=200)
-    image = models.ImageField(blank=True, null=True)
+    image = models.ImageField(upload_to='categories', blank=True, null=True)
     description = models.TextField(blank=True)
     starts_at = models.PositiveSmallIntegerField(default=0)
 
@@ -49,13 +47,20 @@ class FoodCategory(models.Model):
 class Food(models.Model):
     category = models.ForeignKey(FoodCategory, related_name='categories', on_delete=models.CASCADE)
     name = models.CharField(max_length=200, unique=True)
-    image = models.ImageField(blank=True, null=True)
+    image = models.ImageField(upload_to='foods', blank=True, null=True)
     price = models.PositiveSmallIntegerField(default=0)
     max_order = models.IntegerField(default=5)
     
 
     def __str__(self):
         return self.name
+        
+
+@receiver(post_delete, sender=FoodCategory)
+@receiver(post_delete, sender=CarouselImage)
+@receiver(post_delete, sender=get_user_model())
+def handle_image_delete(instance, *args, **kwargs):
+    os.remove(instance.image.path)
 
 @receiver(post_save, sender=Food)
 def handle_starts_at_create(instance,created, *args, **kwargs):
@@ -69,9 +74,11 @@ def handle_starts_at_create(instance,created, *args, **kwargs):
 def handle_starts_at_delete(instance, *args, **kwargs):
     category = instance.category
     foods = Food.objects.filter(category=category).aggregate(min=Min('price'))
-    if(not foods.get('min')):
+    if(foods.get('min') is None):
+        category.starts_at = 0
+    else:
         category.starts_at = foods.get('min',0)
-    category.starts_at = 0
+    os.remove(instance.image.path)
     category.save()
 
 
@@ -106,7 +113,6 @@ class ComboItem(models.Model):
 class Combo(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
-    image = models.ImageField(blank=True, null=True)
     items = models.ManyToManyField(ComboItem)
 
     def __str__(self):

@@ -54,6 +54,7 @@ const ChangeProfile = () => {
   const changeProfileImg = () => {
     const data = {
       image: selectedImg,
+      patch_type: "change_image",
     };
     const headers = {
       Authorization: `Bearer ${localStorage.getItem("access_token")}`,

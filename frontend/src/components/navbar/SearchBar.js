@@ -35,7 +35,6 @@ function SearchBar({ showSearch, setShowSearch }) {
   useEffect(() => {
     if (showSearch) {
       document.getElementById("test").focus({ focusVisible: true });
-      console.log(document.getElementById("test"));
     }
   }, [showSearch]);
 

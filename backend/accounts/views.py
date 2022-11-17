@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
@@ -25,6 +26,8 @@ class UpdateUserInfoView(APIView):
             
 
             change_password = True
+        elif patch_type == 'change_image':
+            os.remove(request.user.image.path)
         serializer = UserSerializer(request.user, data=request.data,
         partial=True, context={'change_password':change_password, 'request':request} )
         if serializer.is_valid():

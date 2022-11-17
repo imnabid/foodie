@@ -6,12 +6,11 @@ import {
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
-import image from "../../images/combo.jpg";
 import { Close } from "@mui/icons-material";
 import { UserContext } from "../../GlobalContext";
 import { axiosInstanceGeneral } from "../../axios/axios";
 
-function ComboCard({ combo }) {
+function ComboCard({ combo, image }) {
   const [total, setTotal] = useState(0);
   const [clicked, setClicked] = useState(false);
   const { cartItems, setCartItems, setCombos, setShowSnackBar } = useContext(UserContext);

@@ -23,7 +23,7 @@ REACT_APP_GOOGLE_CLIENT_ID = <>
 
 ## Customer Side Images
 
-![[demo/Screenshot 2024-01-08 143311.png]]
+![[Screenshot 2024-01-08 143311.png]]
 ![[demo/Screenshot 2024-01-08 143321.png]]
 ![[demo/Screenshot 2024-01-08 143328.png]]
 ![[demo/Screenshot 2024-01-08 143338.png]]

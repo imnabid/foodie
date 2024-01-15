@@ -22,22 +22,21 @@ REACT_APP_GOOGLE_CLIENT_ID = <>
 ```
 
 ## Customer Side Images
+<img src="demo/Screenshot%202024-01-08%20143311.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143321.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143328.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143338.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143351.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143412.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143401.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%201435341.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143633.png" width="700px"/>
 
-![CHEESE!](demo/Screenshot%202024-01-08%20143311.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143321.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143328.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143338.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143351.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143412.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143401.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143534 1.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143633.png)
 
 ## Owner Site Images
-
-![CHEESE!](demo/Screenshot%202024-01-08%20144152.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143734.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143752.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143801.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143854.png)
-![CHEESE!](demo/Screenshot%202024-01-08%20143745.png)
+<img src="demo/Screenshot%202024-01-08%20144152.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143734.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143752.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143801.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143854.png" width="700px"/>
+<img src="demo/Screenshot%202024-01-08%20143745.png" width="700px"/>

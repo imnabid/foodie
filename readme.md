@@ -22,7 +22,7 @@ REACT_APP_GOOGLE_CLIENT_ID = <>
 ```
 
 ## Customer Side Images
-<img src="demo/Screenshot%202024-01-08%20143311.png" width="708px"/>
+<img src="demo/Screenshot%202024-01-08%20143311.png" width="700px"/>
 <img src="demo/Screenshot%202024-01-08%20143321.png" width="700px"/>
 <img src="demo/Screenshot%202024-01-08%20143328.png" width="700px"/>
 <img src="demo/Screenshot%202024-01-08%20143338.png" width="700px"/>
